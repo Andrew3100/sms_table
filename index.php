@@ -1,7 +1,10 @@
 <?php
 require_once 'classes/classes.php';
+include 'db/db_config.php';
+$records = $DB->getRecordsByCondition('users');
+var_dump(mysqli_fetch_assoc($records));
 
-
+/*
 function get_records_sql($table,$condition,$print = 0)
 {
     $db_host = "localhost";
@@ -66,6 +69,6 @@ $table = new html_table();
     ['20','Ручка'],
     ['30','Карандаш'],
     ['10','Спички']
-];*/
+];*//*
 $table = $table->printTable($headers, $records2);
-echo ($table);
+echo ($table);*/
