@@ -1,74 +1,25 @@
 <?php
+require_once 'libs/html_elements_lib.php';
 require_once 'classes/classes.php';
 include 'db/db_config.php';
-$records = $DB->getRecordsByCondition('users');
-var_dump(mysqli_fetch_assoc($records));
-
-/*
-function get_records_sql($table,$condition,$print = 0)
-{
-    $db_host = "localhost";
-    $db_user = "root"; // Логин БД
-    $db_password = "root"; // Пароль БД
-    $db_base = 'jc_database'; // Имя БД
-    // Подключение к базе данных
-    $mysqli = new mysqli($db_host, $db_user, $db_password, $db_base);
-    $mysqli->set_charset("utf8");
-    if ($condition!='') {
-        $sql = "SELECT * FROM `$table` WHERE $condition";
-        $result = $mysqli->query($sql);
-        if (($print) == 1) {
-            print_r($sql);
-        }
-
-    }
-    else {
-        $sql = "SELECT * FROM `$table`";
-        $result = $mysqli->query($sql);
-        if (($print) == 1) {
-            print_r($sql);
-        }
-    }
-    return $result;
-}
-
-function get_field_list($table_name) {
-    $db_host = "localhost";
-    $db_user = "root"; // Логин БД
-    $db_password = "root"; // Пароль БД
-    $db_base = 'jc_database'; // Имя БД
-    // Подключение к базе данных
-    $mysqli = new mysqli($db_host, $db_user, $db_password, $db_base);
-    $mysqli->set_charset("utf8");
-    $field_list = array();
-    $sql = "SHOW COLUMNS FROM `$table_name`";
-    $res_sql = $mysqli->query($sql);
+echo '<div class="container">';
+echo '<div class="row">';
+echo '<div class="col">';
+GetHeader();
+echo '</div>';
+echo '</div>';
+echo '</div>';
+exit();
 
 
-    while ($res_sql1 = mysqli_fetch_assoc($res_sql)) {
-        $field_list[] = $res_sql1['Field'];
-    }
-
-    return $field_list;
-}
-
-
-$records = get_records_sql('users','');
-$field_list = get_field_list('users');
-foreach ($records as $record) {
-    for ($i = 0; $i < count($field_list); $i++) {
-        $records1[] = $record[$field_list[$i]];
-    }
-    $records2[] = $records1;
-    unset($records1);
-}
+$headers = $DB->getTableFieldsName('target_recomendes');
+$records_array = $DB->GetRecordsForTableInterfaceArray('target_recomendes');
 
 $table = new html_table();
- $headers = ['Ид','Фамилия','Имя','Отчество','Статус','Пароль','Логин','Админ'];
- /*$content = [
-    ['20','Ручка'],
-    ['30','Карандаш'],
-    ['10','Спички']
-];*//*
-$table = $table->printTable($headers, $records2);
-echo ($table);*/
+echo '<div class="container">';
+echo '<div class="row">';
+echo '<div class="col">';
+echo $table->printTable($headers,$records_array);
+echo '</div>';
+echo '</div>';
+echo '</div>';
