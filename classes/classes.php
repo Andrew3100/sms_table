@@ -87,24 +87,61 @@ class DB {
         }
         return $array_result;
     }
-    //метод формирует excel файл из таблицы
+    //метод формирует excel файл из таблицы и заголовков
 
-    function reportToExcel($content,$headers) {
+    function reportToExcel() {
         require_once 'Excel/Classes/PHPExcel.php';
-        // Создаем объект класса PHPExcel
-        $xls = new PHPExcel();
-        // Устанавливаем индекс активного листа
-        $xls->setActiveSheetIndex(0);
-        // Получаем активный лист
-        $sheet = $xls->getActiveSheet();
-        // Подписываем лист
-        $sheet->setTitle('Очтёт');
-        $symbols = ["A","B","C","D"];
-        for ($i = 0; $i < count($headers); $i++) {
-            $sheet->setCellValue();
-        }
 
+        //Новый документ Excel
+        $excel = new PHPExcel();
+        //Определяем стартовую ячейку для формирования документа
+        $excel->setActiveSheetIndex(0);
+
+        $excel->getActiveSheet()->setCellValue('A1','привет');
+
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="file.xlsx"');
+
+
+        header ('Expires: '.gmdate('D, d M Y H:i:s').' GMT');
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+        header ('Cache-Control: cache, must-revalidate');
+        header ('Pragma: public');
+
+        $objWriter = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+        $objWriter->save('file.xlsx');
     }
+    function insert_record($table,$record_object) {
+        $mysqli = $this->setConnect();
+        $keys = get_object_vars($record_object);
+        $keys1 = array_keys($keys);
 
+        $string_fields = '(`';
+        for ($i = 0; $i < count($keys); $i++) {
+            $string_fields .= $keys1[$i];
+            $string_fields .= '`';
+            if ($i!=count($keys)-1) {
+                $string_fields .= ', ';
+                $string_fields .= '`';
+            }
+        }
+        $string_fields .= ')';
+        
+        $string_for_insert = "('";
+        for ($i = 0; $i < count($keys); $i++) {
+            $string_for_insert .= ($record_object->{$keys1[$i]});
+            $string_for_insert .= "'";
+            if ($i!=count($keys)-1) {
+                $string_for_insert .= ', ';
+                $string_for_insert .= "'";
+            }
+        }
+        $string_for_insert .= ')';
+        $last_id = $mysqli->query("SELECT MAX(`id`) FROM $table");
+
+        $inserted = $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
+        return (mysqli_fetch_assoc($last_id)["MAX(`id`)"]) + 1;
+    }
 }
 
