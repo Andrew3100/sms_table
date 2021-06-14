@@ -5,12 +5,15 @@ include 'db/db_config.php';
 
 $obj = new stdClass();
 
-$obj->firstname = 'Фуников';
-$obj->name = 'Андрей';
+$obj->firstname = 'лёха';
+$obj->name = 'кислых';
 $obj->lastname = 'Дмитриевич';
 $obj->ban = 0;
-$obj->password = 'coronavirus';
-$obj->login = 'Andre';
+$obj->password = 'analgladkov';
+$obj->login = 'petre';
 $obj->isadmin = 0;
-echo $DB->insert_record('users',$obj);
 
+
+for ($i = 0; $i < 120; $i++) {
+    $DB->deleteRecordById('users',$i);
+}

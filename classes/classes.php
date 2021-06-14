@@ -112,6 +112,9 @@ class DB {
         $objWriter = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
         $objWriter->save('file.xlsx');
     }
+    // метод вставляет запись в таблицу.
+    // Запись передаётся в виде объекта, где свойства - поля таблицы
+    // Возвращает идентификатор вставленной записи
     function insert_record($table,$record_object) {
         $mysqli = $this->setConnect();
         $keys = get_object_vars($record_object);
@@ -138,10 +141,33 @@ class DB {
             }
         }
         $string_for_insert .= ')';
+        //считаем крайний ИД в таблице
         $last_id = $mysqli->query("SELECT MAX(`id`) FROM $table");
 
-        $inserted = $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
+        $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
+        // возвращаем вставленный ИД
         return (mysqli_fetch_assoc($last_id)["MAX(`id`)"]) + 1;
+    }
+    //Метод обновляет запись в таблице
+    //Запись передаётся объектом, где свойства - поля БД
+    //Для адресации записи передать ID этой записи
+    function update_recordById($table,$object_upd,$id) {
+        $mysqli = $this->setConnect();
+        $keys = get_object_vars($object_upd);
+        $keys1 = array_keys($keys);
+
+        for ($i = 0; $i < count($keys); $i++) {
+          $set =  $object_upd->{$keys1[$i]};
+          $mysqli->query("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
+        }
+        return $id;
+    }
+    //метод удаляет данные из заданной таблицы
+    //по идентификатору, который затем возвращает
+    function deleteRecordById($table,$id) {
+        $mysqli = $this->setConnect();
+        $mysqli->query("DELETE FROM $table WHERE id = $id");
+        return $id;
     }
 }
 
