@@ -1,5 +1,5 @@
 <?php
-
+//Класс для работы с таблицей
 class html_table {
 function printTable($headers, $content) {
 include 'html/template.html';
@@ -25,10 +25,11 @@ return $table;
 }
 }
 
+// Класс для работы с БД
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = '';
+    public $db_password = 'root';
     public $db_base = 'jc_database';
     //метод устанавливает соединение с БД
     function setConnect() {
@@ -39,6 +40,7 @@ class DB {
         }
         return $mysqli;
     }
+
     //метод возврашает ассоциативный массив
     //данных из заданной таблицы.
     //Можно передать условие отбора записей и отбираемые поля в строке через запятую
@@ -54,6 +56,7 @@ class DB {
         }
         return $records = $mysqli->query("SELECT $fields FROM $table $condition");
     }
+
     // Метод возвращает массив полей заданной таблицы
     function getTableFieldsName($table) {
         $mysqli = $this->setConnect();
@@ -64,7 +67,7 @@ class DB {
         return $fields_list;
     }
 
-    function GetRecordsForTableInterfaceArray($table,$where='',$fieldss = '*') {
+    function getRecordsForTableInterfaceArray($table,$where='',$fieldss = '*') {
         $mysqli = $this->setConnect();
         // получаем поля в виде массива
         $fields = $this->getTableFieldsName($table);
@@ -87,30 +90,35 @@ class DB {
         }
         return $array_result;
     }
+
     //метод формирует excel файл из таблицы и заголовков
-
-    function reportToExcel() {
+    function reportToExcel($content,$headers) {
         require_once 'Excel/Classes/PHPExcel.php';
-
-        //Новый документ Excel
+        $cells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        //Новый объект Excel
         $excel = new PHPExcel();
         //Определяем стартовую ячейку для формирования документа
         $excel->setActiveSheetIndex(0);
 
-        $excel->getActiveSheet()->setCellValue('A1','привет');
+        for ($i = 0; $i <count($headers); $i++) {
+            $excel->getActiveSheet()->setCellValue($cells[$i].'1',$headers[$i]);
+        }
 
+        for ($i = 0; $i < count($content); $i++) {
+            $s = 1;
+            $n = 1;
+            for ($g = 0; $g < count($content[$i]); $g++) {
+                $excel->getActiveSheet()->setCellValue($cells[$g].($i),$content[$i][$g]);
+                $s++;
+                $n++;
+            }
+        }
 
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="file.xlsx"');
-
-
-        header ('Expires: '.gmdate('D, d M Y H:i:s').' GMT');
-        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
-        header ('Cache-Control: cache, must-revalidate');
-        header ('Pragma: public');
-
-        $objWriter = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-        $objWriter->save('file.xlsx');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="hello.xlsx');
+        header('Cash-Control: max-age=0');
+        $file = PHPExcel_IOFactory::createWriter($excel,'Excel2007');
+        $file->save('php://output');
     }
     // метод вставляет запись в таблицу.
     // Запись передаётся в виде объекта, где свойства - поля таблицы
@@ -169,5 +177,31 @@ class DB {
         $mysqli->query("DELETE FROM $table WHERE id = $id");
         return $id;
     }
+
 }
 
+class html_form {
+
+    //Метод открывает форму. Параметры - файл обработки и метод ПД
+    function openForm($action,$method='POST') {
+        echo "<form action='$action' method='$method'>";
+    }
+    //Метод закрывает форму, можно передать цвет и текст кнопки. Если не передать, дефолтный цвет - success, текст - Отправить
+    function closeForm($button_text="Отправить",$class='success') {
+        echo "<button type='submit' class='btn btn-$class'>$button_text</button>";
+    }
+
+    //Метод выводит поле ввода по типу
+    //Идентификатор используется для обозначения атрибутов name и for
+    //Можно передать текст Bootstrap-метки для поля ввода. Если не передать, будет просто поле ввода
+    //Можно указать ширину, если не указать, дефолт 600пкс
+    function getFormByType($type,$id,$label='',$width=600) {
+        include 'html/template.html';
+        $width .= 'px';
+        if ($label!='') {
+            echo "<label for='$id' class='form-label'>$label</label>";
+        }
+        echo "<input name='name$id' type='$type' class='form-control' id='$id' style='width: $width;'>";
+    }
+
+}
