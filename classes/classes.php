@@ -29,7 +29,7 @@ return $table;
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = 'root';
+    public $db_password = '';
     public $db_base = 'jc_database';
     //метод устанавливает соединение с БД
     function setConnect() {
@@ -45,7 +45,7 @@ class DB {
     //данных из заданной таблицы.
     //Можно передать условие отбора записей и отбираемые поля в строке через запятую
     //Если отбираемые поля и условие не переданы, то выберутся все записи по всем полям
-    function getRecordsByConditionFetchAssoc($table,$where='',$fields = '*') {
+    function getRecordsByConditionFetchAssoc($table,$where='',$fields = '*',$print='') {
         $mysqli = $this->setConnect();
 
         if ($where!='') {
@@ -53,6 +53,9 @@ class DB {
         }
         else {
             $condition = '';
+        }
+        if ($print!='') {
+            print_r("SELECT $fields FROM $table $condition");
         }
         return $records = $mysqli->query("SELECT $fields FROM $table $condition");
     }
@@ -204,4 +207,59 @@ class html_form {
         echo "<input name='name$id' type='$type' class='form-control' id='$id' style='width: $width;'>";
     }
 
+}
+
+class user {
+    public $firstname = '';
+    public $surname = '';
+    public $name = '';
+    public $login = '';
+    public $user_md5 = '';
+    public $user_status = '';
+    //метод авторизует пользователя в системе
+    function authUser($login,$password) {
+       $DB = new DB;
+       $DB->setConnect();
+       $password = md5($password);
+       $users = $DB->getRecordsByConditionFetchAssoc('users',"login = '$login' AND `password` = '$password' AND ban = 0",'*');
+       if (count(mysqli_fetch_assoc($users)) > 0) {
+           if (setcookie('user',$login,time() + 3600, "/")) {
+//               header('Location: index.php?data=1');
+           }
+       }
+    }
+    //метод выкидывает пользователь из системы
+    function unAuth_user() {
+        setcookie('user','nahuy_otsyuda',time() - 10000, "/");
+    }
+
+}
+
+//Класс для управления элементами интерфейса Bootstrap
+class Bootstrap {
+    function GetHeader() {
+        echo '
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+              <div class="container-fluid">
+                <a class="navbar-brand" href="#">ЭМОУ</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="#">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#">Документация</a>
+                    </li>
+                  </ul>
+                  <form class="d-flex">
+                    <input class="form-control mr-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Поиск</button>
+                  </form>
+                </div>
+              </div>
+            </nav>';
+    }
 }
