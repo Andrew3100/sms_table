@@ -180,6 +180,29 @@ class DB {
         $mysqli->query("DELETE FROM $table WHERE id = $id");
         return $id;
     }
+    //метод создаёт таблицу. Параметры - имя, массив названий полей, массив типов данных полей
+    //если в названии полей находится id, то он по дефолту создаётся автоинкриментным
+    // с параметром not null (а также первичный ключ)
+    function CreateTable($name,$headers_DB,$type) {
+        $datas_string = '(';
+        for ($i = 0; $i < count($headers_DB); $i++) {
+            $set = '';
+            if ($headers_DB[$i]=='id') {
+                $set = 'not null auto_increment';
+            }
+            $datas_string .= "$headers_DB[$i] $type[$i] collate 'UTF8_general_ci' $set";
+                $datas_string .= ', ';
+
+        }
+        $datas_string .= 'PRIMARY KEY  (`id`))';
+
+        $DB = new DB;
+        $mysqli = $DB->setConnect();
+
+        $create = $mysqli->query("
+        CREATE TABLE $name $datas_string
+        ");
+    }
 
 }
 
@@ -201,10 +224,28 @@ class html_form {
     function getFormByType($type,$id,$label='',$width=600) {
         include 'html/template.html';
         $width .= 'px';
+        $f = '';
         if ($label!='') {
-            echo "<label for='$id' class='form-label'>$label</label>";
+            $f .= "<label for='$id' class='form-label'>$label</label>";
         }
-        echo "<input name='name$id' type='$type' class='form-control' id='$id' style='width: $width;'>";
+        return $f .= "<input name='name$id' type='$type' class='form-control' id='$id' style='width: $width;'>";
+    }
+
+    function autocompleteForm() {
+        include 'html/template.html';
+
+
+        $f = '';
+
+/*            $f .= "<label for='$id' class='form-label'>$label</label>";*/
+
+        return $f .= "
+        <div class='ui-widget'>
+            <label for='tags'>Tag programming languages: </label>
+            <input id='tags' size='50'>
+        </div>
+        ";
+
     }
 
 }
@@ -261,5 +302,32 @@ class Bootstrap {
                 </div>
               </div>
             </nav>';
+    }
+}
+
+class block {
+
+    //функция создаёт таблицу в разделе. Параметры:
+    //$block_name - имя раздела, в котором создаётся таблица
+    //$table_name - имя таблицы
+    //$DB_table_name - имя таблицы для базы данных
+    //$types_data_arr - массив типов данных для таблицы
+    //$headers_DB - поля этой таблицы для базы данных
+    //$headers_interface - заголовки для интерфейса
+    //метод создаёт новую таблицу в разделе
+    function addTablesByBlock($block_name,$get,$table_name,$DB_table_name,$types_data_arr,$headers_DB,$headers_interface) {
+        $DB = new DB();
+        $DB->setConnect();
+        //создаём таблицу для базы данных
+        $DB->CreateTable($table_name,$headers_DB,$types_data_arr);
+        $object = new stdClass();
+        for ($i = 0; $i < count($headers_DB); $i++) {
+            $object->get_name = $get;
+            $object->type_name = $types_data_arr[$i];
+            $object->fn = $headers_DB[$i];
+            $object->descriptor_n = $headers_interface[$i];
+            $object->isused = 1;
+        }
+        $DB->insert_record('bsu_form_data',$object);
     }
 }
