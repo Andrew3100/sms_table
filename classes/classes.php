@@ -29,7 +29,7 @@ class html_table {
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = '';
+    public $db_password = 'root';
     public $db_base = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
@@ -298,19 +298,19 @@ class Bootstrap {
         }
         echo "<div class='container$fluid'>
                 <div class='row'>";
-           for ($i = 0; $i < count($array_grid); $i++) {
-               echo "<div class='col-$array_grid[$i]'>";
-               $keys = array_keys($html_content);
-               //если встречаем ключ со словом include - выполняем подключение файла, иначе выводим компонент на экран
-               if (is_numeric(strpos($keys[$i],'include'))) {
-                   include $html_content['for_include_content'];
-               }
-               else {
-                   echo $html_content[$i];
-               }
+        for ($i = 0; $i < count($array_grid); $i++) {
+            echo "<div class='col-$array_grid[$i]'>";
+            $keys = array_keys($html_content);
+            //если встречаем ключ со словом include - выполняем подключение файла, иначе выводим компонент на экран
+            if (is_numeric(strpos($keys[$i],'include'))) {
+                include $html_content['for_include_content'];
+            }
+            else {
+                echo $html_content[$i];
+            }
 
-               echo "</div>";
-           }
+            echo "</div>";
+        }
         echo '
                 </div>
               </div>
@@ -380,6 +380,3 @@ class block {
         $headers_interface
 );*/
 }
-
-
-

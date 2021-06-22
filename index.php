@@ -28,6 +28,3 @@ $html = [$menu,'for_include_content'=>$c];
 
 
 $bootstrap->setContainer([3,9],$html,'fluid');
-
-
-
