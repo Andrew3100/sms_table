@@ -1,28 +1,28 @@
 <?php
 //Класс для работы с таблицей
 class html_table {
-function printTable($headers, $content) {
-include 'html/template.html';
-$table = '<table class="table table-dark table-bordered">';
-    //цикл по заголовкам
+    function printTable($headers, $content) {
+        include 'html/template.html';
+        $table = '<table class="table table-dark table-bordered">';
+        //цикл по заголовкам
 
-    for ($i = 0; $i < count($headers); $i++) {
-    $table .= "<td>{$headers[$i]}</td>";
-    }
-
-    //цикл по контенту
-    for ($i = 0; $i < count($content); $i++) {
-    $table .= '<tr>';
-
-        for ($g = 0; $g < count($content[$i]); $g++) {
-        $table .= "<td>{$content[$i][$g]}</td>";
+        for ($i = 0; $i < count($headers); $i++) {
+            $table .= "<td>{$headers[$i]}</td>";
         }
-        $table .= '</tr>';
-    }
-    $table .= '</table>';
 
-return $table;
-}
+        //цикл по контенту
+        for ($i = 0; $i < count($content); $i++) {
+            $table .= '<tr>';
+
+            for ($g = 0; $g < count($content[$i]); $g++) {
+                $table .= "<td>{$content[$i][$g]}</td>";
+            }
+            $table .= '</tr>';
+        }
+        $table .= '</table>';
+
+        return $table;
+    }
 }
 
 // Класс для работы с БД
@@ -30,7 +30,7 @@ class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
     public $db_password = '';
-    public $db_base = 'jc_database';
+    public $db_base = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
@@ -141,7 +141,7 @@ class DB {
             }
         }
         $string_fields .= ')';
-        
+
         $string_for_insert = "('";
         for ($i = 0; $i < count($keys); $i++) {
             $string_for_insert .= ($record_object->{$keys1[$i]});
@@ -168,8 +168,8 @@ class DB {
         $keys1 = array_keys($keys);
 
         for ($i = 0; $i < count($keys); $i++) {
-          $set =  $object_upd->{$keys1[$i]};
-          $mysqli->query("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
+            $set =  $object_upd->{$keys1[$i]};
+            $mysqli->query("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
         }
         return $id;
     }
@@ -191,7 +191,7 @@ class DB {
                 $set = 'not null auto_increment';
             }
             $datas_string .= "$headers_DB[$i] $type[$i] collate 'UTF8_general_ci' $set";
-                $datas_string .= ', ';
+            $datas_string .= ', ';
 
         }
         $datas_string .= 'PRIMARY KEY  (`id`))';
@@ -237,7 +237,7 @@ class html_form {
 
         $f = '';
 
-/*            $f .= "<label for='$id' class='form-label'>$label</label>";*/
+        /*            $f .= "<label for='$id' class='form-label'>$label</label>";*/
 
         return $f .= "
         <div class='ui-widget'>
@@ -259,15 +259,15 @@ class user {
     public $user_status = '';
     //метод авторизует пользователя в системе
     function authUser($login,$password) {
-       $DB = new DB;
-       $DB->setConnect();
-       $password = md5($password);
-       $users = $DB->getRecordsByConditionFetchAssoc('users',"login = '$login' AND `password` = '$password' AND ban = 0",'*');
-       if (count(mysqli_fetch_assoc($users)) > 0) {
-           if (setcookie('user',$login,time() + 3600, "/")) {
+        $DB = new DB;
+        $DB->setConnect();
+        $password = md5($password);
+        $users = $DB->getRecordsByConditionFetchAssoc('users',"login = '$login' AND `password` = '$password' AND ban = 0",'*');
+        if (count(mysqli_fetch_assoc($users)) > 0) {
+            if (setcookie('user',$login,time() + 3600, "/")) {
 //               header('Location: index.php?data=1');
-           }
-       }
+            }
+        }
     }
     //метод выкидывает пользователь из системы
     function unAuth_user() {
@@ -303,6 +303,47 @@ class Bootstrap {
               </div>
             </nav>';
     }
+
+    //Метод создаёт контейнер BootStrap. Параметры:
+    //массив - сетка ширин col
+    //html_content - элементы для столбцов
+    //fluid - обрезка или на весь монитор
+    function setContainer($array_grid,$html_content,$fluid='') {
+        if ($fluid!='') {
+            $fluid = '-fluid';
+        }
+        echo "<div class='container$fluid'>
+                <div class='row'>";
+           for ($i = 0; $i < count($array_grid); $i++) {
+               echo "<div class='col-$array_grid[$i]'>";
+               $keys = array_keys($html_content);
+               //если встречаем ключ со словом include - выполняем подключение файла, иначе выводим компонент на экран
+               if (is_numeric(strpos($keys[$i],'include'))) {
+                   include $html_content['for_include_content'];
+               }
+               else {
+                   echo $html_content[$i];
+               }
+
+               echo "</div>";
+           }
+        echo '
+                </div>
+              </div>
+            ';
+    }
+
+    function setListMenu($names_array) {
+        $list = '<ul class="list-group">';
+        for ($i = 0; $i < count($names_array); $i++) {
+            $list .= "
+            <li class='list-group-item'>$names_array[$i]</li>
+            ";
+        }
+        $list .= '</ul>';
+        return $list;
+    }
+
 }
 
 class block {
@@ -319,15 +360,42 @@ class block {
         $DB = new DB();
         $DB->setConnect();
         //создаём таблицу для базы данных
-        $DB->CreateTable($table_name,$headers_DB,$types_data_arr);
-        $object = new stdClass();
+        $DB->CreateTable($DB_table_name,$headers_DB,$types_data_arr);
         for ($i = 0; $i < count($headers_DB); $i++) {
+            $object = new stdClass();
             $object->get_name = $get;
             $object->type_name = $types_data_arr[$i];
             $object->fn = $headers_DB[$i];
             $object->descriptor_n = $headers_interface[$i];
             $object->isused = 1;
+            $object->requred = 1;
+            $DB->insert_record('bsu_form_data',$object);
         }
-        $DB->insert_record('bsu_form_data',$object);
+        $object = new stdClass();
+        $object->linkname = $block_name;
+        $object->link_get = $get;
+        $object->header = $table_name;
+        $object->status = 1;
+        $DB->insert_record('administration_table_link',$object);
+
+
     }
+
+    //пример работы с методом:
+    /*$block = new block();
+    $types = ['int','text','date','text','text','int'];
+    $headers = ['id','name','surname','parazh','age','status'];
+    $headers_interface = ['Идентификатор','Имя','Фамилия','Поражение','Возраст','Статус'];
+    $block->addTablesByBlock(
+        'Новый раздел',
+        'get',
+        'Таблица нового раздела',
+        'new_block_table',
+        $types,
+        $headers,
+        $headers_interface
+);*/
 }
+
+
+
