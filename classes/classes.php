@@ -231,22 +231,6 @@ class html_form {
         return $f .= "<input name='name$id' type='$type' class='form-control' id='$id' style='width: $width;'>";
     }
 
-    function autocompleteForm() {
-        include 'html/template.html';
-
-
-        $f = '';
-
-        /*            $f .= "<label for='$id' class='form-label'>$label</label>";*/
-
-        return $f .= "
-        <div class='ui-widget'>
-            <label for='tags'>Tag programming languages: </label>
-            <input id='tags' size='50'>
-        </div>
-        ";
-
-    }
 
 }
 
