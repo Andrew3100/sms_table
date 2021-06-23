@@ -2,17 +2,23 @@
 
 function getContentByMenu() {
     if ($_GET['data']==1) {
-        $content = 'menu/data.php';
+        $content = 'data.php';
     }
     else {
         if ($_GET['reports']==1) {
-            $content = 'menu/reports.php';
+            $content = 'reports.php';
         }
         else {
             if ($_GET['import']==1) {
-                $content = 'menu/import.php';
+                $content = 'import.php';
             }
         }
     }
     return $content;
+}
+//отладка
+function debug() {
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+    error_reporting(E_ALL);
 }

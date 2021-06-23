@@ -1,9 +1,11 @@
 <?php
 //Класс для работы с таблицей
 class html_table {
-    function printTable($headers, $content) {
+
+    function printTable($table_name_interface,$headers, $content) {
         include 'html/template.html';
-        $table = '<table class="table table-dark table-bordered">';
+        $table = "<br><h4 style='text-align: center'>$table_name_interface</h4>";
+        $table .= '<br><table class="table table-dark table-bordered">';
         //цикл по заголовкам
 
         for ($i = 0; $i < count($headers); $i++) {
@@ -29,8 +31,8 @@ class html_table {
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = 'root';
-    public $db_base = 'administration2021';
+    public $db_password = '';
+    public $db_base = 'object_adm';
     //метод устанавливает соединение с БД
     function setConnect() {
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
@@ -296,29 +298,33 @@ class Bootstrap {
         if ($fluid!='') {
             $fluid = '-fluid';
         }
-        echo "<div class='container$fluid'>
+        $container = "<div class='container$fluid'>
                 <div class='row'>";
         for ($i = 0; $i < count($array_grid); $i++) {
-            echo "<div class='col-$array_grid[$i]'>";
+            $container.= "<div class='col-$array_grid[$i]'>";
             $keys = array_keys($html_content);
             //если встречаем ключ со словом include - выполняем подключение файла, иначе выводим компонент на экран
             if (is_numeric(strpos($keys[$i],'include'))) {
                 include $html_content['for_include_content'];
             }
             else {
-                echo $html_content[$i];
+                $container.= $html_content[$i];
             }
 
-            echo "</div>";
+            $container.= "</div>";
         }
-        echo '
+        $container.= '
                 </div>
               </div>
             ';
+        return $container;
     }
 
-    function setListMenu($names_array) {
-        $list = '<ul class="list-group">';
+    function setListMenu($names_array,$width='') {
+        if ($width!='') {
+            $width .= 'px';
+        }
+        $list = "<ul class='list-group' style='width: $width'>";
         for ($i = 0; $i < count($names_array); $i++) {
             $list .= "
             <li class='list-group-item'>$names_array[$i]</li>

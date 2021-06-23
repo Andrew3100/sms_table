@@ -13,7 +13,7 @@ $blocks = $DB->getRecordsByConditionFetchAssoc('administration_table_link');
 foreach ($blocks as $block) {
     $get = $block["get"];
     $head = $block["header"];
-    $link = "<a href='menu/table_list.php?$get'>$head</a>";
+    $link = "<a href='table_list.php?$get'>$head</a>";
     $blocked[] = $link;
 }
 
