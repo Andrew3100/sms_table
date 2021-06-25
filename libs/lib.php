@@ -22,3 +22,9 @@ function debug() {
     ini_set('display_startup_errors', 0);
     error_reporting(E_ALL);
 }
+
+function pre($object) {
+    echo '<pre>';
+    var_dump($object);
+    echo '</pre>';
+}

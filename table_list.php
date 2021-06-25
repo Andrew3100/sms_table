@@ -34,4 +34,4 @@ $tables_list_html = $bootstrap->setListMenu($table_list_links);
 $html = [$menu_html,$tables_list_html];
 
 //контейнер (описание метода есть в классе)
-$bootstrap->setContainer([3,9],$html,'fluid');
+echo $bootstrap->setContainer([3,9],$html,'fluid');
