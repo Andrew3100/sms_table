@@ -28,6 +28,8 @@ $menu_list =
         '<a href="index.php?data=1">Работа с данными</a>',
         '<a href="index.php?reports=1">Отчёты по выборочным данным</a>',
         '<a href="index.php?import=1">Логи</a>',
+        '<a href="index.php?roots=1">Права доступа</a>',
+        '<a href="index.php?create_user=1">Создать пользователя</a>',
         '<a href="index.php?create=1">Создать раздел</a>'
     ];
 
@@ -39,7 +41,6 @@ foreach ($fields as $field) {
 }
 
 $fields = $DB->getTableFieldsName($get);
-
 
 for ($i = 0; $i < count($fields); $i++) {
     if ($fields[$i] != 'status' AND $fields[$i] != 'author') {
@@ -61,7 +62,6 @@ $actions = [
         <button style='margin-top: 15px;' class='btn btn-sm btn-success' type='submit'>Загрузить</button>
     </form>"
 ];
-
 
 
 $html_table = $bootstrap->setListMenu($actions,400);

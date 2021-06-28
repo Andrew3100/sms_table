@@ -20,8 +20,10 @@ echo '<br><br><br>';
 $menu_list =
     [
         '<a href="index.php?data=1">Работа с данными</a>',
-        '<a href="index.php?reports=1">Отчёты</a>',
-        '<a href="index.php?import=1">Импорт данных</a>'
+        '<a href="index.php?reports=1">Отчёты по выборочным данным</a>',
+        '<a href="index.php?import=1">Логи</a>',
+        '<a href="index.php?roots=1">Права доступа</a>',
+        '<a href="index.php?create=1">Создать раздел</a>'
     ];
 
 $menu = $bootstrap->setListMenu($menu_list);
@@ -35,7 +37,7 @@ echo "
            $menu 
         </div>
         <div class='col-9'>";
-var_dump($c);
+include ($c);
 echo "    
         </div>
         

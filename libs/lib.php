@@ -12,6 +12,19 @@ function getContentByMenu() {
             if ($_GET['import']==1) {
                 $content = 'import.php';
             }
+            if ($_GET['create']) {
+                $content = 'create_block.php';
+            }
+            if ($_GET['create_template']) {
+                $content = 'create_block1.php';
+            }
+            if ($_GET['roots']) {
+                $content = 'roots.php';
+            }
+            if ($_GET['create_user']) {
+                $content = 'create_user.php';
+            }
+
         }
     }
     return $content;
