@@ -4,7 +4,8 @@
 class html_table {
 
     function printTable($table_name_interface,$headers, $content) {
-        pre($content);
+
+        
         $bootstrap = new Bootstrap();
         $war = 'Подтвердите удаление записи';
 
