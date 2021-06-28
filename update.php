@@ -20,13 +20,28 @@ foreach ($assoc as $arr) {
     $fetch[] = $arr['type_name'];
     $fetch1[] = $arr['descriptor_n'];
 }
-echo $form->openForm("upd_script.php?$table&$id",'post');
+
+$form->openForm("upd_script.php?$table&$id",'post');
 echo '<div style="position: absolute; left: 50%; top: 50%;-webkit-transform: translate(-50%, -50%);-moz-transform: translate(-50%, -50%);-ms-transform: translate(-50%, -50%);-o-transform: translate(-50%, -50%);transform: translate(-50%, -50%);>';
 
 
-for ($i = 0; $i < count($fetch); $i++) {
-    echo $form->getFormByType($fetch[$i],$i,$fetch1[$i],500);
+
+
+$values = $DB->getFormFields($table);
+
+$values_str = implode(',',$values);
+
+$records = $DB->getRecordsByConditionFetchAssoc($table,"`id` = $id",$values_str,1);
+
+
+foreach ($records as $record) {
+    for ($i = 0; $i < count($values); $i++) {
+         echo $form->getFormByType($fetch[$i],$i,$fetch1[$i],500,($record[$values[$i]]));
+    }
 }
+
+
+
 echo '<br>';
 $form->closeForm('Обновить','success');
 echo '</div>';

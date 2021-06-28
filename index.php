@@ -35,7 +35,7 @@ echo "
            $menu 
         </div>
         <div class='col-9'>";
-var_dump($c);
+include ($c);
 echo "    
         </div>
         

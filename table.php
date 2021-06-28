@@ -49,19 +49,23 @@ for ($i = 0; $i < count($fields); $i++) {
 
 $fields_for_interface = implode($fields_for_interface,',');
 
+
 $content = $DB->getRecordsForTableInterfaceArray($get,'',$fields_for_interface);
 
+
 $actions = [
-    "<a href='pdf.php?$get'>Сохранить  в Excel<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
-    "<a href='excel.php?$get'>Сохранить  в PDF<img src='https://ukdeafsport.org.uk/wp-content/uploads/2016/10/PDF-Form-Logo-WEB-1024x1024.jpg' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
+    "<a href='print_excel.php?$get'>Сохранить  в Excel<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
+
     "<form enctype='multipart/form-data' method='post' action='load.php?$get'>
-        <label class='form-label' for='excel'>Загрузить данные</label>
+        <label class='form-label' for='excel'>Загрузить данные из Excel</label>
         <input class='form-control' type='file' required name='excel' id='excel'>
         
         <button style='margin-top: 15px;' class='btn btn-sm btn-success' type='submit'>Загрузить</button>
-    </form>"
+        
+        
+    </form>",
+    "<a class='btn btn-success' href='add.php?$get' style='border-radius: 100px'>Добавить одну запись +</a>"
 ];
-
 
 
 $html_table = $bootstrap->setListMenu($actions,400);

@@ -3,6 +3,7 @@
 class html_table {
 
     function printTable($table_name_interface,$headers, $content) {
+        pre($content);
         $bootstrap = new Bootstrap();
         $war = 'Подтвердите удаление записи';
 
@@ -21,9 +22,10 @@ class html_table {
             $table .= '<tr>';
 
             for ($g = 1; $g < count($content[$i]); $g++) {
+
                 $table .= "<td>{$content[$i][$g]}</td>";
             }
-            $red = '<a href="update.php?del='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg style="color: #ff9e00" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>';
+            $red = '<a href="update.php?red='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg style="color: #ff9e00" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>';
             $del = '<a href="delete.php?del='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg onclick="return confirm(`Подтвердите удаление записи`)" style="color: red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/></svg></a>';
             $html = [$red,$del];
             $actions = $bootstrap->setContainer([6,6],$html,'fluid');
@@ -40,8 +42,8 @@ class html_table {
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = '';
-    public $db_base = 'object_adm';
+    public $db_password = 'root';
+    public $db_base = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
@@ -101,7 +103,7 @@ class DB {
         foreach ($records as $records1) {
             for ($i = 0; $i < count($fields); $i++) {
                 $array[] = $records1[$fields[$i]];
-                if ($array[$i] == NULL) {
+                if ($array[$i] == NULL AND $array[$i]!="") {
                    unset($array[$i]);
                 }
             }
@@ -120,11 +122,9 @@ class DB {
         $excel = new PHPExcel();
         //Определяем стартовую ячейку для формирования документа
         $excel->setActiveSheetIndex(0);
-
         for ($i = 0; $i <count($headers); $i++) {
             $excel->getActiveSheet()->setCellValue($cells[$i].'1',$headers[$i]);
         }
-
         for ($i = 0; $i < count($content); $i++) {
             $s = 1;
             $n = 1;
@@ -134,13 +134,13 @@ class DB {
                 $n++;
             }
         }
-
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="hello.xlsx');
         header('Cash-Control: max-age=0');
         $file = PHPExcel_IOFactory::createWriter($excel,'Excel2007');
         $file->save('php://output');
     }
+
     // метод вставляет запись в таблицу.
     // Запись передаётся в виде объекта, где свойства - поля таблицы
     // Возвращает идентификатор вставленной записи
@@ -177,6 +177,7 @@ class DB {
         // возвращаем вставленный ИД
         return (mysqli_fetch_assoc($last_id)["MAX(`id`)"]) + 1;
     }
+
     //Метод обновляет запись в таблице
     //Запись передаётся объектом, где свойства - поля БД
     //Для адресации записи передать ID этой записи
@@ -191,6 +192,7 @@ class DB {
         }
         return $id;
     }
+
     //метод удаляет данные из заданной таблицы
     //по идентификатору, который затем возвращает
     function deleteRecordById($table,$id) {
@@ -198,6 +200,7 @@ class DB {
         $mysqli->query("DELETE FROM $table WHERE id = $id");
         return $id;
     }
+
     //метод создаёт таблицу. Параметры - имя, массив названий полей, массив типов данных полей
     //если в названии полей находится id, то он по дефолту создаётся автоинкриментным
     // с параметром not null (а также первичный ключ)
@@ -222,6 +225,29 @@ class DB {
         ");
     }
 
+    //метод получает имена полей БД для данной таблицы с учётом специфики системы
+    function getFormFields($table) {
+       $fields = $this->getTableFieldsName($table);
+
+       for ($i = 0; $i < count($fields); $i++) {
+           if ($fields[$i] != 'id' AND $fields[$i] != 'author' AND $fields[$i] != 'status') {
+               $fieldss[] = $fields[$i];
+           }
+       }
+
+       return $fieldss;
+
+    }
+
+    //метод получает интерфейсные имена полей (пользовательские)
+    function getInterfaceFields($table) {
+        $fields = $this->getRecordsByConditionFetchAssoc('bsu_form_data',"`get_name` = '$table'");
+        foreach ($fields as $field) {
+            $fieldd[] = $field['descriptor_n'];
+        }
+        return $fieldd;
+    }
+
 }
 
 class html_form {
@@ -239,14 +265,14 @@ class html_form {
     //Идентификатор используется для обозначения атрибутов name и for
     //Можно передать текст Bootstrap-метки для поля ввода. Если не передать, будет просто поле ввода
     //Можно указать ширину, если не указать, дефолт 600пкс
-    function getFormByType($type,$id,$label='',$width=600) {
+    function getFormByType($type,$id,$label='',$width=600,$value='') {
         include 'html/template.html';
         $width .= 'px';
         $f = '';
         if ($label!='') {
             $f .= "<label for='$id' class='form-label'>$label</label>";
         }
-        return $f .= "<input name='name$id' type='$type' class='form-control' id='$id' style='width: $width;'>";
+        return $f .= "<input name='name$id' type='$type' value='$value' class='form-control' id='$id' style='width: $width;'>";
     }
 
 
