@@ -1,4 +1,5 @@
 <?php
+
 //Класс для работы с таблицей
 class html_table {
 
@@ -74,11 +75,14 @@ class DB {
     }
 
     // Метод возвращает массив полей заданной таблицы
-    function getTableFieldsName($table) {
+    function getTableFieldsName($table,$print='') {
         $mysqli = $this->setConnect();
         $fields = $mysqli->query("SHOW COLUMNS FROM $table");
         foreach ($fields as $fieldss) {
             $fields_list[] = $fieldss['Field'];
+        }
+        if ($print!='') {
+            print_r("SHOW COLUMNS FROM $table");
         }
         return $fields_list;
     }
@@ -251,6 +255,36 @@ class DB {
 }
 
 class html_form {
+
+    //метод создаёт формы для удалённого автокомплита
+    function autocompleteTextArea($id,$label,$width=600,$height=60) {
+
+        echo '<script src="/js/jquery/js/jquery-ui-1.10.3.custom.js"></script>';
+        echo '<script src="/js/jquery/js/jquery-1.9.1.js"></script>';
+        echo '<script src="/js/complete.js"></script>';
+
+        $width .= 'px';
+        $height.= 'px';
+
+        if ($label!='') {
+            echo "<label for='$id' class='form-label'>$label</label>";
+        }
+        echo "<div class='ui-widget'>
+                <textarea name='$id' id=$id style='width: $width; height: $height'></textarea>
+              </div>";
+
+    }
+
+    //метод создаёт скрытую форму
+    function hidden($value,$name,$show='') {
+        if ($show=='') {
+            $type = 'hidden';
+        }
+        else {
+            $type = 'text';
+        }
+        echo "<input type=$type value='$value' name='$name'>";
+    }
 
     //Метод открывает форму. Параметры - файл обработки и метод ПД
     function openForm($action,$method='POST') {
