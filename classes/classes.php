@@ -83,8 +83,9 @@ class html_table {
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = '';
-    public $db_base = 'object_adm';
+    public $db_password = 'root';
+    public $db_base = 'administration2021';
+//    public $db_bas = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
@@ -411,28 +412,24 @@ class html_form {
 }
 
 class user {
-    public $firstname = '';
-    public $surname = '';
-    public $name = '';
-    public $login = '';
-    public $user_md5 = '';
-    public $user_status = '';
+
+
     //метод авторизует пользователя в системе
     function authUser($login,$password) {
         $DB = new DB;
         $DB->setConnect();
         $password = md5($password);
 
-        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0");
+        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0",'*',2);
         if (count(mysqli_fetch_assoc($users)) > 0) {
-            if (setcookie('user',$login,time() + 3600, "/")) {
+            if (setcookie('user',$login,time() + 3600*24, "/")) {
                header('Location: index.php?data=1');
             }
         }
     }
     //метод выкидывает пользователь из системы
     function unAuth_user() {
-        setcookie('user','nahuy_otsyuda',time() - 10000, "/");
+        setcookie('user','nahuy_otsyuda',time() - 10000*24, "/");
     }
 
 }

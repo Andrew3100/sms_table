@@ -8,5 +8,12 @@ echo '<form action="gen.php" method="post">
             <option>6</option>
             <option>7</option>
         </select>
+        <label for="mod">Тип ведомости</label>
+        <select id="mod" name="mod">
+            <option>1</option>
+            <option>2</option>
+            <option>Итоговая ведомость</option>
+        </select>
+        
         <button type="submit">Создать ведомость</button>
       </form>';
