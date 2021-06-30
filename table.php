@@ -10,18 +10,39 @@ require_once 'html/template.html';
 //вычисляем GET
 $get = array_keys($_GET)[0];
 
+$block = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$get'",'*');
+
+foreach ($block as $blok) {
+    $blocks = $blok['header'];
+    $for_link = $blok['get'];
+}
+
 //интерфейсное имя таблицы
 $table_named = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$get'");
 foreach ($table_named as $table_name1) {
     $table_name = $table_name1['linkname'];
 }
+$bread = [
+    "index.php?main=1" => 'Главная',
+    "index.php?data=1" => 'Работа с данными',
+    "table_list.php/$for_link" => "$blocks",
+    "$table_name"
+];
+$active = [
+    '',
+    '',
+    '',
+    'active'
+];
 
 //объекты
 $table =     new html_table();
 $bootstrap = new Bootstrap();
 
-echo $bootstrap->GetHeader();
-echo '<br><br><br>';
+$bootstrap->GetHeader();
+echo '<br><br>';
+$bootstrap->getBreadcrumb($bread,$active);
+echo '<br><br>';
 
 $menu_list =
     [
@@ -53,6 +74,14 @@ $fields_for_interface = implode($fields_for_interface,',');
 
 $content = $DB->getRecordsForTableInterfaceArray($get,'',$fields_for_interface);
 
+for ($i=0; $i < count($content); $i++) {
+    for ($g=0; $g < count($content[$i]); $g++) {
+        if ($content[$i][$g] == NULL) {
+            unset($content[$i][$g]);
+        }
+    }
+}
+$content = array_values($content);
 
 $actions = [
     "<a href='print_excel.php?$get'>Сохранить  в Excel<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",

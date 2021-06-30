@@ -7,12 +7,34 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+$get = array_keys($_GET)[0];
+
+$block = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`get` = '$get'",'header');
+
+foreach ($block as $blok) {
+    $blocks = $blok['header'];
+}
+
+$bread = [
+    "index.php?main=1" => 'Главная',
+    "index.php?data=1" => 'Работа с данными',
+    "" => "$blocks",
+];
+$active = [
+    '',
+    '',
+    'active'
+];
 
 $bootstrap = new Bootstrap();
 
 //шапка
 $bootstrap->GetHeader();
-echo '<br><br><br>';
+echo '<br><br>';
+
+$bootstrap->getBreadcrumb($bread,$active);
+
+echo '<br><br>';
 
 //список пунктов меню
 $menu_list =
@@ -23,7 +45,6 @@ $menu_list =
     ];
 //преобразуем список пунктов меню в красивый лист
 $menu_html = $bootstrap->setListMenu($menu_list);
-$get = array_keys($_GET)[0];
 $table_list = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`get` = '$get'",'*');
 
 foreach ($table_list as $table_lists) {

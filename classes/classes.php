@@ -4,17 +4,22 @@
 class html_table {
 
     function printTable($table_name_interface,$headers, $content) {
-
-        
+//        pre($content);
+//        pre($headers);
         $bootstrap = new Bootstrap();
         $war = 'Подтвердите удаление записи';
 
         include 'html/template.html';
         $table = "<br><h4 style='text-align: center'>$table_name_interface</h4>";
-        $table .= '<br><table class="table table-dark table-bordered">';
+        $table .= '<br><table class="table  table-bordered">';
+        if ($table_name_interface == 'Действующие пользователи') {
+            $if = 1;
+        }
+        else {
+            $if = 0;
+        }
         //цикл по заголовкам
-
-        for ($i = 0; $i < count($headers); $i++) {
+        for ($i = $if; $i < count($headers); $i++) {
             $table .= "<td>{$headers[$i]}</td>";
         }
         $table .= "<td>Действия</td>";
@@ -23,7 +28,7 @@ class html_table {
         for ($i = 0; $i < count($content); $i++) {
             $table .= '<tr>';
 
-            for ($g = 1; $g < count($content[$i]); $g++) {
+            for ($g = 1; $g < count($content[$i])-1; $g++) {
 
                 $table .= "<td>{$content[$i][$g]}</td>";
             }
@@ -38,14 +43,48 @@ class html_table {
 
         return $table;
     }
+    function printUsers($table_name_interface,$headers, $content) {
+//        pre($content);
+//        pre($headers);
+        $bootstrap = new Bootstrap();
+
+        include 'html/template.html';
+        $table = "<br><h4 style='text-align: center'>$table_name_interface</h4>";
+        $table .= '<br><table class="table  table-bordered">';
+        if ($table_name_interface == 'Действующие пользователи') {
+            $if = 1;
+        }
+        else {
+            $if = 0;
+        }
+
+        //цикл по заголовкам
+        for ($i = $if; $i < count($headers); $i++) {
+            $table .= "<td>{$headers[$i]}</td>";
+        }
+
+        //цикл по контенту
+        for ($i = 0; $i < count($content); $i++) {
+            $table .= '<tr>';
+
+            for ($g = 1; $g < count($content[$i]); $g++) {
+
+                $table .= "<td>{$content[$i][$g]}</td>";
+            }
+            $table .= '</tr>';
+        }
+        $table .= '</table>';
+
+        return $table;
+    }
 }
 
 // Класс для работы с БД
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = 'root';
-    public $db_base = 'administration2021';
+    public $db_password = '';
+    public $db_base = 'object_adm';
     //метод устанавливает соединение с БД
     function setConnect() {
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
@@ -186,7 +225,7 @@ class DB {
     //Метод обновляет запись в таблице
     //Запись передаётся объектом, где свойства - поля БД
     //Для адресации записи передать ID этой записи
-    function update_recordById($table,$object_upd,$id) {
+    function update_recordById($table,$object_upd,$id,$print='') {
         $mysqli = $this->setConnect();
         $keys = get_object_vars($object_upd);
         $keys1 = array_keys($keys);
@@ -194,6 +233,9 @@ class DB {
         for ($i = 0; $i < count($keys); $i++) {
             $set =  $object_upd->{$keys1[$i]};
             $mysqli->query("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
+        }
+        if ($print!='') {
+            print_r("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
         }
         return $id;
     }
@@ -253,6 +295,46 @@ class DB {
         return $fieldd;
     }
 
+    function getRoleListByLogin($login) {
+        $role_list = $this->getRecordsByConditionFetchAssoc('users',"`login` = '$login'");
+        foreach ($role_list as $roles) {
+            $role = $roles['role_list'];
+            if ($roles['role_list'] == null) {
+                $role = 'Учётная запись заблокирована';
+            }
+            else {
+                if (strlen($role) > 1) {
+                    $role = explode(',',$role);
+                }
+                else {
+                    if (strlen($role) == 1) {
+                        $role = $role;
+                    }
+                    else {
+                        if (strlen($role) == 'all') {
+                            $alls = $this->getRecordsByConditionFetchAssoc('roles');
+                            foreach ($alls as $all) {
+                                $role[] = $all['id'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+         return $role;
+    }
+
+
+    function getAllRoles() {
+        $roles = $this->getRecordsByConditionFetchAssoc('roles');
+        foreach ($roles as $role) {
+            $role_list[$role['id']] = $role['name'];
+        }
+        return $role_list;
+    }
+
 }
 
 class html_form {
@@ -304,13 +386,28 @@ class html_form {
         include 'html/template.html';
         $width .= 'px';
         $f = '';
+
         if ($label!='') {
             $f .= "<label for='$id' class='form-label'>$label</label>";
         }
         return $f .= "<input name='name$id' type='$type' value='$value' class='form-control' id='$id' style='width: $width;'>";
     }
 
-
+    function getCheckBox($id,$label='',$status='checked') {
+        include 'html/template.html';
+        if ($status != 'checked') {
+            $cheked = '';
+        }
+        else {
+            $cheked = 'checked';
+        }
+        $f = "<input name='name$id' value='$label' $cheked type='checkbox' class='form-check-input' id='$id'>";
+        if ($label!='') {
+            $f .= "<label for='$id' style='margin-left: 10px; margin-bottom: 5px;' class='form-check-label'>$label</label>";
+        }
+        echo '<br><br>';
+        return $f;
+    }
 }
 
 class user {
@@ -325,10 +422,11 @@ class user {
         $DB = new DB;
         $DB->setConnect();
         $password = md5($password);
-        $users = $DB->getRecordsByConditionFetchAssoc('users',"login = '$login' AND `password` = '$password' AND ban = 0",'*');
+
+        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0");
         if (count(mysqli_fetch_assoc($users)) > 0) {
             if (setcookie('user',$login,time() + 3600, "/")) {
-//               header('Location: index.php?data=1');
+               header('Location: index.php?data=1');
             }
         }
     }
@@ -365,6 +463,29 @@ class Bootstrap {
                 </div>
               </div>
             </nav>';
+    }
+
+    //Метод создаёт хлебную крошку
+    function getBreadcrumb($links,$active) {
+//        pre($links);
+        $keys = array_keys($links);
+
+//        pre($keys);
+        echo '<div class="container-fluid">
+                <nav style="background-color: #e9ecef; height: 45px;" aria-label="breadcrumb">
+                <ol class="breadcrumb" style=" margin-left: 16px;">';
+        for ($i = 0; $i < count($keys); $i++) {
+            if ($active[$i] != '') {
+                $open_act_tag = '<b>';
+                $close_act_tag = '</b>';
+            }
+            else {
+                $open_act_tag  = '';
+                $close_act_tag = '';
+            }
+            echo "<li class='breadcrumb-item $active[$i]' style='margin-top: 9px;'>$open_act_tag<a href='$keys[$i]'>{$links[$keys[$i]]}</a>$close_act_tag</li>";
+        }
+        echo '</div></ol></nav>';
     }
 
     //Метод создаёт контейнер BootStrap. Параметры:

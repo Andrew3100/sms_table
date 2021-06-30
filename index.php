@@ -1,6 +1,6 @@
 <?php
-require_once 'libs/html_elements_lib.php';
 require_once 'libs/lib.php';
+require_once 'libs/html_elements_lib.php';
 require_once 'classes/classes.php';
 include 'db/db_config.php';
 global $DB;
@@ -14,8 +14,18 @@ foreach ($gets as $get) {
 
 $bootstrap = new Bootstrap();
 
-echo $bootstrap->GetHeader();
-echo '<br><br><br>';
+$bread = [
+    "index.php?main=1" => 'Главная'
+];
+$active = [
+    'active'
+];
+
+
+$bootstrap->GetHeader();
+echo '<br><br>';
+ $bootstrap->getBreadcrumb($bread,$active);
+echo '<br><br>';
 
 $menu_list =
     [
@@ -44,7 +54,7 @@ echo "
     </div>
 </div>
 ";
-
 exit();
-//for_include_content - ключ указывает на то, что в данных находится контент, которые надо выполнять по include
 echo $bootstrap->setContainer([3,9],$html,'fluid');
+//for_include_content - ключ указывает на то, что в данных находится контент, которые надо выполнять по include
+

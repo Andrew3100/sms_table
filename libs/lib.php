@@ -1,4 +1,14 @@
 <?php
+//отладка
+//debug();
+//авторизация
+is_auth();
+
+function is_auth() {
+    if ($_COOKIE['user'] == '') {
+        header('Location: auth_form.php');
+    }
+}
 
 function getContentByMenu() {
     if ($_GET['data']==1) {
