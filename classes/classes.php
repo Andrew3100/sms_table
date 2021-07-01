@@ -83,8 +83,8 @@ class html_table {
 class DB {
     public $db_host = 'localhost';
     public $db_user = 'root';
-    public $db_password = 'root';
-    public $db_base = 'administration2021';
+    public $db_password = '';
+    public $db_base = 'object_adm';
 //    public $db_bas = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
@@ -296,36 +296,7 @@ class DB {
         return $fieldd;
     }
 
-    function getRoleListByLogin($login) {
-        $role_list = $this->getRecordsByConditionFetchAssoc('users',"`login` = '$login'");
-        foreach ($role_list as $roles) {
-            $role = $roles['role_list'];
-            if ($roles['role_list'] == null) {
-                $role = 'Учётная запись заблокирована';
-            }
-            else {
-                if (strlen($role) > 1) {
-                    $role = explode(',',$role);
-                }
-                else {
-                    if (strlen($role) == 1) {
-                        $role = $role;
-                    }
-                    else {
-                        if (strlen($role) == 'all') {
-                            $alls = $this->getRecordsByConditionFetchAssoc('roles');
-                            foreach ($alls as $all) {
-                                $role[] = $all['id'];
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
-
-         return $role;
-    }
 
 
     function getAllRoles() {
@@ -412,6 +383,39 @@ class html_form {
 }
 
 class user {
+
+    //Метод возвращает список ролей пользователя
+    function getRoleListByLogin($login) {
+        $DB = new DB();
+        $role_list = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login'");
+        foreach ($role_list as $roles) {
+            $role = $roles['role_list'];
+            if ($roles['role_list'] == null) {
+                $role = 'Учётная запись заблокирована';
+            }
+            else {
+                if (strlen($role) > 1) {
+                    $role = explode(',',$role);
+                }
+                else {
+                    if (strlen($role) == 1) {
+                        $role = $role;
+                    }
+                    else {
+                        if (strlen($role) == 'all') {
+                            $alls = $DB->getRecordsByConditionFetchAssoc('roles');
+                            foreach ($alls as $all) {
+                                $role[] = $all['id'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return $role;
+    }
 
 
     //метод авторизует пользователя в системе
@@ -581,4 +585,19 @@ class block {
         $headers,
         $headers_interface
 );*/
+}
+
+class log {
+
+    function fixed($user,$event) {
+        $DB = new DB();
+        $obj = new stdClass();
+        $obj->event = $event;
+        $obj->date = date('d-m-Y',time());
+        $obj->time = date('H:i:s',time());
+        $obj->username = $user;
+        $obj->status = 1;
+        $obj->field = null;
+        $DB->insert_record('logs',$obj);
+    }
 }

@@ -18,5 +18,7 @@ $obj = new stdClass();
 for ($i = 0; $i < count($fieldss); $i++) {
     $obj->{$fieldss[$i]} = $_POST['name'.$i];
 }
-$DB->update_recordById($table,$obj,$id);
+$id = $DB->update_recordById($table,$obj,$id);
+
+$log->fixed('admin',"Обновление записи № $id  таблице $table");
 echo "<script>window.location.replace('table.php?$table')</script>";

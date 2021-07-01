@@ -14,10 +14,17 @@ foreach ($gets as $get) {
 
 $bootstrap = new Bootstrap();
 
-$bread = [
-    "index.php?main=1" => 'Главная'
-];
+$bread = ["index.php?main=1" => 'Главная'];
+if (array_keys($_GET)[0] == 'roots') {
+    $bread["index.php?roots=1"] = 'Права доступа';
+}
+
+
+
+
+
 $active = [
+    '',
     'active'
 ];
 
@@ -33,7 +40,8 @@ $menu_list =
         '<a href="index.php?reports=1">Отчёты по выборочным данным</a>',
         '<a href="index.php?import=1">Логи</a>',
         '<a href="index.php?roots=1">Права доступа</a>',
-        '<a href="index.php?create=1">Создать раздел</a>'
+        '<a href="index.php?create=1">Создать раздел</a>',
+        '<a href="exit.php">Выйти из системы</a>'
     ];
 
 $menu = $bootstrap->setListMenu($menu_list);

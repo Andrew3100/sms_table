@@ -10,7 +10,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 $text .= '
 <head>
-<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<meta http-equiv=Content-Type content="text/html; charset=UTF-8">
 <meta name=ProgId content=Word.Document>
 <meta name=Generator content="Microsoft Word 15">
 <meta name=Originator content="Microsoft Word 15">

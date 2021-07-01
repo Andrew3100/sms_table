@@ -8,7 +8,21 @@ require_once 'classes/classes.php';
 
 global $DB;
 
-$blocks = $DB->getRecordsByConditionFetchAssoc('administration_table_link');
+$user = new user();
+//роли пользователя
+$roles = $user->getRoleListByLogin('admin');
+
+if (count($roles)>1) {
+    $role_str = implode($roles,',');
+}
+else {
+
+    $role_str = $roles[0];
+}
+
+$blocks = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`role_id` in ($role_str)");
+
+$roles_all_list = $DB->getAllRoles();
 
 foreach ($blocks as $block) {
     $get = $block["get"];

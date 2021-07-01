@@ -21,10 +21,10 @@ for ($i = 0; $i < count($content); $i++) {
 
 $table = new html_table();
 if ($_GET['action_role']==1) {
-
+    $user = new user();
     $user_name = array_keys($_GET)[2];
     //массив ролей для выбранного пользователя
-    $user_roles = $DB->getRoleListByLogin($user_name);
+    $user_roles = $user->getRoleListByLogin($user_name);
     //массив всех ролей
     $all_roles = (array_keys($DB->getAllRoles()));
 

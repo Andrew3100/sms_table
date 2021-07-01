@@ -1,6 +1,6 @@
 <?php
 //отладка
-debug();
+//debug();
 //авторизация
 //is_auth();
 
@@ -52,3 +52,5 @@ function pre($object) {
     var_dump($object);
     echo '</pre>';
 }
+
+
