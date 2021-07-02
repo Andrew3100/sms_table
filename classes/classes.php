@@ -85,7 +85,8 @@ class DB {
     public $db_user = 'root';
     public $db_password = '';
     public $db_base = 'object_adm';
-//    public $db_bas = 'administration2021';
+
+    //public $db_bas = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
@@ -216,11 +217,15 @@ class DB {
         }
         $string_for_insert .= ')';
         //считаем крайний ИД в таблице
-        $last_id = $mysqli->query("SELECT MAX(`id`) FROM $table");
 
-        $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
+        $ins = $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
+        if (!$ins) {
+            print_r("INSERT INTO $table $string_fields VALUES $string_for_insert");
+            echo 'запись не вставлена';
+        }
+        $last_id = $mysqli->query("SELECT MAX(`id`) FROM $table");
         // возвращаем вставленный ИД
-        return (mysqli_fetch_assoc($last_id)["MAX(`id`)"]) + 1;
+        return (mysqli_fetch_assoc($last_id)["MAX(`id`)"]);
     }
 
     //Метод обновляет запись в таблице
@@ -383,6 +388,18 @@ class html_form {
 }
 
 class user {
+    public $name;
+    public $login;
+
+    //метод заполняет поля public заданного пользователя
+    function setUserData() {
+        $DB = new DB();
+        $datas = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '{$_COOKIE['user']}'");
+        foreach ($datas as $data) {
+            $this->login = $data['login'];
+            $this->name = $data['fullname'];
+        }
+    }
 
     //Метод возвращает список ролей пользователя
     function getRoleListByLogin($login) {
@@ -424,16 +441,20 @@ class user {
         $DB->setConnect();
         $password = md5($password);
 
-        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0",'*',2);
+        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0");
         if (count(mysqli_fetch_assoc($users)) > 0) {
             if (setcookie('user',$login,time() + 3600*24, "/")) {
                header('Location: index.php?data=1');
             }
         }
+        foreach ($users as $user) {
+            $this->name = $user['fullname'];
+        }
     }
     //метод выкидывает пользователь из системы
     function unAuth_user() {
         setcookie('user','nahuy_otsyuda',time() - 10000*24, "/");
+        header('Location: ');
     }
 
 }
