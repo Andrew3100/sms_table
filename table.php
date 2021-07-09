@@ -83,8 +83,8 @@ for ($i=0; $i < count($content); $i++) {
 }
 $content = array_values($content);
 
-$actions = [
-    "<a href='print_excel.php?$get'>Сохранить  в Excel<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
+$m_up_left = [
+    "<a href='print_excel.php?$get'>Сохранить в Excel всю таблицу<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
 
     "<form enctype='multipart/form-data' method='post' action='load.php?$get'>
         <label class='form-label' for='excel'>Загрузить данные из Excel</label>
@@ -97,9 +97,29 @@ $actions = [
     "<a class='btn btn-success' href='add.php?$get' style='border-radius: 100px'>Добавить одну запись +</a>"
 ];
 
+$form_date = new html_form();
+$form = "<p>Отчёт за период</p>";
+$form .= $form_date->openForm('report_select.php','post');
+$form .=$form_date->getFormByType('date',1,'Начало периода',150);
+$form .=$form_date->getFormByType('date',2,'Конец периода',150).'<br>';
+$form .=$form_date->closeForm('Отчёт','success');
 
-$html_table = $bootstrap->setListMenu($actions,400);
-$html_table .= $table->printTable($table_name,$headers,$content);
+$m_up_right = [
+    "
+    
+    <p>$form</p>
+    
+    ",
+];
+
+
+
+
+$menu_html_up_left = $bootstrap->setListMenu($m_up_left);
+$menu_html_up_right = $bootstrap->setListMenu($m_up_right);
+$html_table = $table->printTable($table_name,$headers,$content);
 $menu_html = $bootstrap->setListMenu($menu_list);
-$html = [$menu_html,$html_table];
-echo $bootstrap->setContainer([3,9],$html,'fluid');
+$html = [$menu_html_up_left,$menu_html_up_right];
+$html2 = [$html_table];
+echo $bootstrap->setContainer([6,6],$html,'fluid');
+echo $bootstrap->setContainer([12],$html2,'fluid');

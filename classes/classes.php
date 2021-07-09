@@ -86,6 +86,11 @@ class DB {
     public $db_password = '';
     public $db_base = 'object_adm';
 
+    function table_list() {
+        $db = $this->setConnect();
+
+    }
+
     //public $db_bas = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
@@ -348,11 +353,11 @@ class html_form {
 
     //Метод открывает форму. Параметры - файл обработки и метод ПД
     function openForm($action,$method='POST') {
-        echo "<form action='$action' method='$method'>";
+        return "<form action='$action' method='$method'>";
     }
     //Метод закрывает форму, можно передать цвет и текст кнопки. Если не передать, дефолтный цвет - success, текст - Отправить
     function closeForm($button_text="Отправить",$class='success') {
-        echo "<button type='submit' class='btn btn-$class'>$button_text</button>";
+        return "<button type='submit' class='btn btn-$class'>$button_text</button>";
     }
 
     //Метод выводит поле ввода по типу
