@@ -7,6 +7,7 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+
 //вычисляем GET
 $get = array_keys($_GET)[0];
 
@@ -25,8 +26,8 @@ foreach ($table_named as $table_name1) {
 $bread = [
     "index.php?main=1" => 'Главная',
     "index.php?data=1" => 'Работа с данными',
-    "table_list.php/$for_link" => "$blocks",
-    "$table_name"
+    "table_list.php?$for_link" => "$blocks",
+    "#" => "$table_name"
 ];
 $active = [
     '',

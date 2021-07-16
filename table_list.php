@@ -18,7 +18,7 @@ foreach ($block as $blok) {
 $bread = [
     "index.php?main=1" => 'Главная',
     "index.php?data=1" => 'Работа с данными',
-    "" => "$blocks",
+    "#" => "$blocks",
 ];
 $active = [
     '',

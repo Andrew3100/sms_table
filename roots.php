@@ -43,7 +43,7 @@ if ($_GET['action_role']==1) {
 
     //форма для чекбоксов
     $form = new html_form();
-    $form->openForm("setRole.php?$user_name",'post');
+    echo $form->openForm("setRole.php?$user_name",'post');
 
     for ($i = 0; $i < count($all_roles); $i++) {
         if (in_array($user_roles[$i],$all_roles)) {
@@ -54,10 +54,10 @@ if ($_GET['action_role']==1) {
             echo $form->getCheckBox($i,$DB->getAllRoles()[$i+1],'1');
         }
     }
-    $form->hidden($i,'count_checks');
+    echo $form->hidden($i,'count_checks');
     echo '<br>';
     echo '<br>';
-    $form->closeForm('Переназначить роли','warning');
+    echo $form->closeForm('Переназначить роли','warning');
 
 }
 //выводим таблицу. В таблице можно щёлкнуть на пользователя и получить список его прав просмотра

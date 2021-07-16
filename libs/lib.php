@@ -1,13 +1,12 @@
 <?php
 //отладка
-//debug();
+debug();
 //авторизация
-//is_auth();
+is_auth();
 
 function is_auth() {
     if ($_COOKIE['user'] == '') {
-        echo 'нема куков';
-//        header('Location: auth_form.php');
+        header('Location: auth_form.php');
     }
 }
 

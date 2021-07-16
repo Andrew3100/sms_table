@@ -10,10 +10,10 @@ $block_name = $_POST['nameblock_name'];
 $table_q = $_POST['nameblock_table_qua'];
 $block_get_name = $_POST['nameblock_get_name'];
 $form = new html_form();
-$form->openForm('create_final.php','post');
-$form->hidden($table_q,'table_qua');
-$form->hidden($block_name,'block_name');
-$form->hidden($block_get_name,'block_get_name');
+echo $form->openForm('create_final.php','post');
+echo $form->hidden($table_q,'table_qua');
+echo $form->hidden($block_name,'block_name');
+echo $form->hidden($block_get_name,'block_get_name');
 
 for ($i = 1; $i <= $table_q; $i++) {
     echo "<b><h2>Данные по таблице № $i</h2></b>";
@@ -26,7 +26,7 @@ for ($i = 1; $i <= $table_q; $i++) {
 
 }
 echo '<br>';
-$form->closeForm('Далее','success');
+echo $form->closeForm('Далее','success');
 
 
 

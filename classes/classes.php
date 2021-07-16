@@ -168,19 +168,25 @@ class DB {
     //метод формирует excel файл из таблицы и заголовков
     function reportToExcel($content,$headers) {
         require_once 'Excel/Classes/PHPExcel.php';
-        $cells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        $cells = ['A', 'B', 'C', 'D', 'E',
+                  'F', 'G', 'H', 'I', 'J',
+                  'K', 'L', 'M', 'N', 'O',
+                  'P', 'Q', 'R', 'S', 'T',
+                  'U', 'V', 'W', 'X', 'Y', 'Z'];
         //Новый объект Excel
         $excel = new PHPExcel();
-        //Определяем стартовую ячейку для формирования документа
+
         $excel->setActiveSheetIndex(0);
         for ($i = 0; $i <count($headers); $i++) {
+            $excel->getActiveSheet()->getColumnDimension()->setAutoSize(true);
             $excel->getActiveSheet()->setCellValue($cells[$i].'1',$headers[$i]);
         }
-        for ($i = 0; $i < count($content); $i++) {
+
+        for ($i = 1; $i <= count($content); $i++) {
             $s = 1;
             $n = 1;
             for ($g = 0; $g < count($content[$i]); $g++) {
-                $excel->getActiveSheet()->setCellValue($cells[$g].($i),$content[$i][$g]);
+                $excel->getActiveSheet()->setCellValue($cells[$g].($i+1),$content[$i][$g]);
                 $s++;
                 $n++;
             }
@@ -334,7 +340,7 @@ class html_form {
         if ($label!='') {
             echo "<label for='$id' class='form-label'>$label</label>";
         }
-        echo "<div class='ui-widget'>
+        return "<div class='ui-widget'>
                 <textarea name='$id' id=$id style='width: $width; height: $height'></textarea>
               </div>";
 
@@ -456,7 +462,7 @@ class user {
             $this->name = $user['fullname'];
         }
     }
-    //метод выкидывает пользователь из системы
+    //метод выкидывает пользователя из системы
     function unAuth_user() {
         setcookie('user','nahuy_otsyuda',time() - 10000*24, "/");
         header('Location: ');
@@ -466,6 +472,8 @@ class user {
 
 //Класс для управления элементами интерфейса Bootstrap
 class Bootstrap {
+
+    //шапка
     function GetHeader() {
         echo '
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -499,7 +507,7 @@ class Bootstrap {
 
 //        pre($keys);
         echo '<div class="container-fluid">
-                <nav style="background-color: #e9ecef; height: 45px;" aria-label="breadcrumb">
+                <nav style="background-color: #e9ecef; height: auto" aria-label="breadcrumb">
                 <ol class="breadcrumb" style=" margin-left: 16px;">';
         for ($i = 0; $i < count($keys); $i++) {
             if ($active[$i] != '') {
@@ -510,7 +518,7 @@ class Bootstrap {
                 $open_act_tag  = '';
                 $close_act_tag = '';
             }
-            echo "<li class='breadcrumb-item $active[$i]' style='margin-top: 9px;'>$open_act_tag<a href='$keys[$i]'>{$links[$keys[$i]]}</a>$close_act_tag</li>";
+            echo "<li class='breadcrumb-item $active[$i]' style='margin-top: 9px; margin-bottom: 12px;'>$open_act_tag<a href='$keys[$i]'>{$links[$keys[$i]]}</a>$close_act_tag</li>";
         }
         echo '</div></ol></nav>';
     }
@@ -625,5 +633,6 @@ class log {
         $obj->status = 1;
         $obj->field = null;
         $DB->insert_record('logs',$obj);
+
     }
 }
