@@ -1,6 +1,6 @@
 <?php
 //отладка
-debug();
+//debug();
 //авторизация
 is_auth();
 
@@ -45,11 +45,22 @@ function debug() {
     ini_set('display_startup_errors', 0);
     error_reporting(E_ALL);
 }
-
+//вывод для отладки
 function pre($object) {
     echo '<pre>';
     var_dump($object);
     echo '</pre>';
 }
-
-
+//функция преобразует текстовое представление даты (по стандартам Excel) в нормальное
+function GetDateByText($text) {
+    $stack1 = 86400 * $text;
+    $stack2 = time();
+    echo $razd = $stack1 - $stack2;
+    /*//секунд с 1900 года
+    $text1900 = 86400 * $text;
+    //секунд в разнице эпох
+    $hueta = 25567*86400;
+    $timestamp = $text1900 - $hueta;
+    $date = date('d-m-Y',$timestamp);
+    return $date;*/
+}

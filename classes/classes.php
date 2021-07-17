@@ -198,6 +198,26 @@ class DB {
         $file->save('php://output');
     }
 
+    function getF() {
+        require_once 'Excel/Classes/PHPExcel.php';
+        require_once 'libs/lib.php';
+        $excel = PHPExcel_IOFactory::load('test.xlsx');
+        $excel->setActiveSheetIndex(0);
+        $form_code = $excel->getActiveSheet()->getStyle('A1')->getNumberFormat()->/*тип формата*/getFormatCode();
+        echo $value = $excel->getActiveSheet()->getCell('A1')->getValue();
+        echo '<br>';
+        if ($form_code == 'm/d/yyyy') {
+           echo GetDateByText($value);
+        }
+        else {
+           echo $form_code;
+        }
+    }
+
+
+
+
+
     // метод вставляет запись в таблицу.
     // Запись передаётся в виде объекта, где свойства - поля таблицы
     // Возвращает идентификатор вставленной записи

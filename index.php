@@ -5,7 +5,8 @@ require_once 'libs/lib.php';
 require_once 'Excel/Classes/PHPExcel.php';
 require_once 'libs/html_elements_lib.php';
 global $DB;
-
+$DB->getF();
+exit();
 $user = new user();
 $user->setUserData();
 $gets = $DB->getRecordsByConditionFetchAssoc('administration_table_link','','*');
