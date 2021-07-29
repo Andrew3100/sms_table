@@ -21,7 +21,7 @@ foreach ($assoc as $arr) {
     $fetch1[] = $arr['descriptor_n'];
 }
 
-$form->openForm("upd_script.php?$table&$id",'post');
+echo $form->openForm("upd_script.php?$table&$id",'post');
 echo '<div style="position: absolute; left: 50%; top: 50%;-webkit-transform: translate(-50%, -50%);-moz-transform: translate(-50%, -50%);-ms-transform: translate(-50%, -50%);-o-transform: translate(-50%, -50%);transform: translate(-50%, -50%);>';
 
 
@@ -43,7 +43,7 @@ foreach ($records as $record) {
 
 
 echo '<br>';
-$form->closeForm('Обновить','success');
+echo $form->closeForm('Обновить','success');
 echo '</div>';
 echo '</body>';
 

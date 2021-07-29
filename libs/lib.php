@@ -1,4 +1,9 @@
 <?php
+
+require_once 'classes/classes.php';
+$user = new user();
+$user->setUserData();
+
 //отладка
 //debug();
 //авторизация
@@ -34,6 +39,12 @@ function getContentByMenu() {
             if ($_GET['create_user']) {
                 $content = 'create_user.php';
             }
+            if ($_GET['main']) {
+                $content = 'hi.php';
+            }
+            if ($_GET['logs']) {
+                $content = 'logs.php';
+            }
 
         }
     }
@@ -51,16 +62,30 @@ function pre($object) {
     var_dump($object);
     echo '</pre>';
 }
+
+
 //функция преобразует текстовое представление даты (по стандартам Excel) в нормальное
 function GetDateByText($text) {
     $stack1 = 86400 * $text;
     $stack2 = time();
-    echo $razd = $stack1 - $stack2;
-    /*//секунд с 1900 года
+     $razd = $stack1 - $stack2;
+    //секунд с 1900 года
     $text1900 = 86400 * $text;
     //секунд в разнице эпох
-    $hueta = 25567*86400;
+    $hueta = 25569*86400;
     $timestamp = $text1900 - $hueta;
     $date = date('d-m-Y',$timestamp);
-    return $date;*/
+    return $date;
+}
+
+GetDateByText(44433);
+
+function getUserInfoBadge($name) {
+    echo '<div class="container-fluid">
+        <div class="row">
+            <div class="col">';
+    echo "<div style='text-align: right'>Вы зашли под учётной записью <b>$name</b> (<a href='exit.php'>Выход</a>)</div>";
+    echo '      </div>
+        </div>
+      </div>';
 }

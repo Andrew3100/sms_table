@@ -30,7 +30,8 @@ $bootstrap = new Bootstrap();
 
 //шапка
 $bootstrap->GetHeader();
-echo '<br><br>';
+
+getUserInfoBadge($user->name);
 
 $bootstrap->getBreadcrumb($bread,$active);
 
@@ -40,9 +41,16 @@ echo '<br><br>';
 $menu_list =
     [
         '<a href="index.php?data=1">Работа с данными</a>',
-        '<a href="index.php?reports=1">Отчёты</a>',
-        '<a href="index.php?import=1">Импорт данных</a>'
     ];
+
+if ($user->is_site_admin()) {
+    $menu_list[] = '<a href="index.php?logs=1">Логи</a>';
+    $menu_list[] = '<a href="index.php?roots=1">Права доступа</a>';
+    $menu_list[] = '<a href="index.php?create=1">Создать раздел</a>';
+}
+
+$menu_list[] = '<a href="exit.php">Выйти из системы</a>';
+
 //преобразуем список пунктов меню в красивый лист
 $menu_html = $bootstrap->setListMenu($menu_list);
 $table_list = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`get` = '$get'",'*');

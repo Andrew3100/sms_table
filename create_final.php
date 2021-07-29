@@ -10,6 +10,11 @@ $count = $_POST['table_qua'];
 $block_name = $_POST['block_name'];
 $get_name   = $_POST['block_get_name'];
 
+$new_role = new stdClass();
+$new_role->name = $block_name;
+
+$last_role_id = $DB->insert_record('roles',$new_role);
+
 for ($i = 1; $i <= $count; $i++) {
     $block = new stdClass();
     $block->interface_table = $_POST['nametable_name_interface'.$i];
@@ -31,6 +36,7 @@ foreach ($objects as $object) {
     $std->header = $block_name;
     $std->status = 1;
     $std->get = $get_name;
+    $std->role_id = $last_role_id;
     $DB->insert_record('administration_table_link',$std);
     $headers_DB = explode(', ',$object->fields_for_db);
     $types = explode(', ',$object->forms_data_types);

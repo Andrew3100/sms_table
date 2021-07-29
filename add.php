@@ -22,7 +22,7 @@ foreach ($assoc as $arr) {
     $i++;
 }
 echo '<br>';
-$form->closeForm('Добавить','success');
+echo $form->closeForm('Добавить','success');
 echo '</div>';
 
 

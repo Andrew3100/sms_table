@@ -3,11 +3,11 @@
 //Класс для работы с таблицей
 class html_table {
 
-    function printTable($table_name_interface,$headers, $content) {
-//        pre($content);
-//        pre($headers);
+    function printTableWithAction($table_name_interface,$headers, $content) {
+
         $bootstrap = new Bootstrap();
-        $war = 'Подтвердите удаление записи';
+        $user = new user();
+        $user->setUserData();
 
         include 'html/template.html';
         $table = "<br><h4 style='text-align: center'>$table_name_interface</h4>";
@@ -32,9 +32,15 @@ class html_table {
 
                 $table .= "<td>{$content[$i][$g]}</td>";
             }
-            $red = '<a href="update.php?red='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg style="color: #ff9e00" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>';
-            $del = '<a href="delete.php?del='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg onclick="return confirm(`Подтвердите удаление записи`)" style="color: red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/></svg></a>';
-            $html = [$red,$del];
+
+            if ($user->is_site_admin() OR $user->isGubernator()) {
+                $red = '<a href="update.php?red='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg style="color: #ff9e00" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>';
+                $del = '<a href="delete.php?del='.$content[$i][0].'&table='.array_keys($_GET)[0].'"><svg onclick="return confirm(`Подтвердите удаление записи`)" style="color: red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/></svg></a>';
+                $html = [$red,$del];
+            }
+        else {
+                $html = ['<p style="text-align: center; color: red">Недоступно</p>'];
+            }
             $actions = $bootstrap->setContainer([6,6],$html,'fluid');
             $table .= "<td>$actions</td>";
             $table .= '</tr>';
@@ -43,6 +49,41 @@ class html_table {
 
         return $table;
     }
+
+    function printTable($table_name_interface,$headers, $content) {
+//        pre($content);
+//        pre($headers);
+        $bootstrap = new Bootstrap();
+        $user = new user();
+        $user->setUserData();
+        $war = 'Подтвердите удаление записи';
+
+        include 'html/template.html';
+        $table = "<br><h4 style='text-align: center'>$table_name_interface</h4>";
+        $table .= '<br><table class="table  table-bordered">';
+        //цикл по заголовкам
+        for ($i = 0; $i < count($headers); $i++) {
+            $table .= "<td>{$headers[$i]}</td>";
+        }
+
+
+        //цикл по контенту
+        for ($i = 0; $i < count($content); $i++) {
+            $table .= '<tr>';
+
+            for ($g = 0; $g < count($content[$i]); $g++) {
+
+                $table .= "<td>{$content[$i][$g]}</td>";
+            }
+
+
+        }
+        $table .= '</table>';
+
+        return $table;
+    }
+
+
     function printUsers($table_name_interface,$headers, $content) {
 //        pre($content);
 //        pre($headers);
@@ -107,6 +148,7 @@ class DB {
     //Можно передать условие отбора записей и отбираемые поля в строке через запятую
     //Если отбираемые поля и условие не переданы, то выберутся все записи по всем полям
     function getRecordsByConditionFetchAssoc($table,$where='',$fields = '*',$print='') {
+
         $mysqli = $this->setConnect();
 
         if ($where!='') {
@@ -134,7 +176,7 @@ class DB {
         return $fields_list;
     }
 
-    function getRecordsForTableInterfaceArray($table,$where='',$fieldss = '*',$print='') {
+    function getRecordsForTableInterfaceArray($table,$where='',$order='',$fieldss = '*',$print='') {
         $mysqli = $this->setConnect();
         // получаем поля в виде массива
         $fields = $this->getTableFieldsName($table);
@@ -146,14 +188,48 @@ class DB {
         else {
             $condition = '';
         }
-        $records = $mysqli->query("SELECT $fieldss FROM $table $condition");
+        if ($order!='') {
+            $order_method = "ORDER BY $order";
+        }
+        $records = $mysqli->query("SELECT $fieldss FROM $table $condition $order_method");
         if ($print != '') {
-            print_r("SELECT $fieldss FROM $table $condition");
+            print_r("SELECT $fieldss FROM $table $condition $order_method");
         }
         //создаём из записей обычный массив
         foreach ($records as $records1) {
             for ($i = 0; $i < count($fields); $i++) {
-                $array[] = $records1[$fields[$i]];
+                // Когда пользователи импортируют данные по датам - формат ячейки равен "Дата".
+                // Когда PHP забирает данные из ячейки в Excel - данные забираются в текстовом формате. Пример:
+                // Как записано в Excel:  '23.08.2021'
+                // Как видит PHP: '44431'
+                // PHP преобразует дату в КОЛИЧЕСТВО ДНЕЙ С 1900 ГОДА
+                // Для решения проблемы проверяем, что если в базе хранится дата в таком виде (5 цифр) (по имени поля БД, таких всего несколько) и не содержит точек или тире (характерны для даты в корректном виде),
+                // то мы используем функцию GetDateByText, которую я написал для преобразования даты в людской вид
+                // P.S. Защита файлов импорта от изменения формата ячейки бесполезна, долбоёбы всё равно всё испортят. А также они вносят даты не по стандарту,
+                // могут быть значения из черии "бессррочно, 20 - 30.02.2020 и так далее"
+                if (
+                    //если данные читаем из полей, связанных с датами
+                       $fields[$i] == 'event_date'
+                    || $fields[$i] == 'event_start'
+                    || $fields[$i] == 'event_stop'
+                    || $fields[$i] == 'date_start'
+                    || $fields[$i] == 'actuality_date'
+                    || $fields[$i] == 'date'
+                    || $fields[$i] == 'event_date'
+                    || $fields[$i] == 'agr_date'
+                    || $fields[$i] == 'date_start'
+                    || $fields[$i] == 'date_stop'
+                    //если в данных нет точек
+                    AND substr_count($records1[$fields[$i]],'.')==0
+                    //если в данных нет тире
+                    AND substr_count($records1[$fields[$i]],'-')==0) {
+
+                    $records1[$fields[$i]];
+                    $array[] =  GetDateByText($records1[$fields[$i]]);
+                }
+                else {
+                    $array[] = $records1[$fields[$i]];
+                }
                 if ($array[$i] == NULL AND $array[$i]!="") {
                    unset($array[$i]);
                 }
@@ -192,7 +268,7 @@ class DB {
             }
         }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="hello.xlsx');
+        header('Content-Disposition: attachment; filename="Отчёт.xlsx');
         header('Cash-Control: max-age=0');
         $file = PHPExcel_IOFactory::createWriter($excel,'Excel2007');
         $file->save('php://output');
@@ -221,7 +297,7 @@ class DB {
     // метод вставляет запись в таблицу.
     // Запись передаётся в виде объекта, где свойства - поля таблицы
     // Возвращает идентификатор вставленной записи
-    function insert_record($table,$record_object) {
+    function insert_record($table,$record_object,$print = '') {
         $mysqli = $this->setConnect();
         $keys = get_object_vars($record_object);
         $keys1 = array_keys($keys);
@@ -251,8 +327,12 @@ class DB {
 
         $ins = $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
         if (!$ins) {
-            print_r("INSERT INTO $table $string_fields VALUES $string_for_insert");
             echo 'запись не вставлена';
+        }
+        if ($print!='') {
+            echo '<pre>';
+            echo("INSERT INTO $table $string_fields VALUES $string_for_insert;");
+            echo '</pre>';
         }
         $last_id = $mysqli->query("SELECT MAX(`id`) FROM $table");
         // возвращаем вставленный ИД
@@ -347,6 +427,17 @@ class DB {
 
 class html_form {
 
+    function getSelectYear($name, $options) {
+
+        $sel = "<select id='select' class='form-control' name='.$name.'";
+        for ($i = 0; $i < count($options); $i++) {
+            $sel .= "
+        <option value='$options[$i]'>$options[$i]</option>
+        ";
+        }
+        return $sel .= '</select>';
+    }
+
     //метод создаёт формы для удалённого автокомплита
     function autocompleteTextArea($id,$label,$width=600,$height=60) {
 
@@ -419,6 +510,7 @@ class html_form {
 }
 
 class user {
+    public $id;
     public $name;
     public $login;
 
@@ -427,10 +519,29 @@ class user {
         $DB = new DB();
         $datas = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '{$_COOKIE['user']}'");
         foreach ($datas as $data) {
+            $this->id =    $data['id'];
             $this->login = $data['login'];
-            $this->name = $data['fullname'];
+            $this->name =  $data['fullname'];
         }
     }
+
+    function isGubernator() {
+        $flag = false;
+        if ($this->name == 'Администрация Губератора Белгородской области') {
+            $flag = true;
+        }
+        return $flag;
+    }
+
+    function is_site_admin() {
+        $flag = false;
+        if ($this->name == 'Пахан') {
+            $flag = true;
+        }
+        return $flag;
+    }
+
+
 
     //Метод возвращает список ролей пользователя
     function getRoleListByLogin($login) {
@@ -493,6 +604,25 @@ class user {
 //Класс для управления элементами интерфейса Bootstrap
 class Bootstrap {
 
+    function getTab($names,$content) {
+        $tab_n = '<div class="tabs">';
+        $form = new html_form();
+
+        for ($i = 0; $i < count($names); $i++) {
+            $tab_n .= '<input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
+    <label for="tab-btn-1">Вкладка 1</label>';
+        }
+        $tab_n .= '</div>';
+        $tab_c = '';
+
+        for ($i = 0; $i < count($content); $i++) {
+             $tab_c .= '<div id="content-'.$i.'">';
+                $tab_c .= $content[$i];
+             $tab_c .= '</div>';
+        }
+        return $tab_n.$tab_c;
+    }
+
     //шапка
     function GetHeader() {
         echo '
@@ -511,10 +641,7 @@ class Bootstrap {
                       <a class="nav-link" href="#">Документация</a>
                     </li>
                   </ul>
-                  <form class="d-flex">
-                    <input class="form-control mr-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Поиск</button>
-                  </form>
+                  
                 </div>
               </div>
             </nav>';
