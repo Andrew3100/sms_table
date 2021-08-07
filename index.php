@@ -1,4 +1,5 @@
 <?php
+
 require_once 'classes/classes.php';
 include 'db/db_config.php';
 require_once 'libs/lib.php';

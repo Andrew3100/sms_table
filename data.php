@@ -9,8 +9,9 @@ require_once 'classes/classes.php';
 global $DB;
 
 $user = new user();
+$user->setUserData();
 //роли пользователя
-$roles = $user->getRoleListByLogin('admin');
+$roles = $user->getRoleListByLogin($user->login);
 
 if (count($roles)>1) {
     $role_str = implode($roles,',');
@@ -20,7 +21,7 @@ else {
     $role_str = $roles[0];
 }
 
-$blocks = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`role_id` in ($role_str)");
+$blocks = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`role_id` in ($role_str)",'*');
 
 $roles_all_list = $DB->getAllRoles();
 

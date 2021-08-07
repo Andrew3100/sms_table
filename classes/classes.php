@@ -4,12 +4,12 @@
 class html_table {
 
     function printTableWithAction($table_name_interface,$headers, $content) {
-
+        include 'html/template.html';
         $bootstrap = new Bootstrap();
+
         $user = new user();
         $user->setUserData();
 
-        include 'html/template.html';
         $table = "<br><h4 style='text-align: center'>$table_name_interface</h4>";
         $table .= '<br><table class="table  table-bordered">';
         if ($table_name_interface == 'Действующие пользователи') {
@@ -122,10 +122,34 @@ class html_table {
 
 // Класс для работы с БД
 class DB {
-    public $db_host = 'localhost';
-    public $db_user = 'root';
-    public $db_password = '';
-    public $db_base = 'object_adm';
+
+    public $db_host;
+    public $db_user;
+    public $db_password;
+    public $db_base;
+    //свойство определяет находится ли проект на локальном сервере
+    public $db_production;
+
+    //определяем параметры подключения к базе данных в
+    //зависимости сервера (локальный или продакшн)
+    function db_param() {
+        if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
+            echo 'локалка';
+            $this->db_host = 'localhost';
+            $this->db_user = 'root';
+            $this->db_password = '';
+            $this->db_base = 'object_adm';
+            $this->db_production = 0;
+        }
+        else {
+            //echo 'сервак';
+            $this->db_host = 'bsu-do-sql-pegas.bsu.edu.ru';;
+            $this->db_user = 'ADMIN';
+            $this->db_password = 'big#psKT';
+            $this->db_base = 'administration2021';
+            $this->db_production = 1;
+        }
+    }
 
     function table_list() {
         $db = $this->setConnect();
@@ -135,11 +159,13 @@ class DB {
     //public $db_bas = 'administration2021';
     //метод устанавливает соединение с БД
     function setConnect() {
+        $this->db_param();
         $mysqli = new mysqli($this->db_host, $this->db_user, $this->db_password, $this->db_base);
         $mysqli->set_charset("utf8");
         if ($mysqli->connect_error) {
             echo "Ошибка подключения к базе данных";
         }
+
         return $mysqli;
     }
 
@@ -207,6 +233,7 @@ class DB {
                 // то мы используем функцию GetDateByText, которую я написал для преобразования даты в людской вид
                 // P.S. Защита файлов импорта от изменения формата ячейки бесполезна, долбоёбы всё равно всё испортят. А также они вносят даты не по стандарту,
                 // могут быть значения из черии "бессррочно, 20 - 30.02.2020 и так далее"
+
                 if (
                     //если данные читаем из полей, связанных с датами
                        $fields[$i] == 'event_date'
@@ -219,6 +246,7 @@ class DB {
                     || $fields[$i] == 'agr_date'
                     || $fields[$i] == 'date_start'
                     || $fields[$i] == 'date_stop'
+                    || $fields[$i] == 'actuality'
                     //если в данных нет точек
                     AND substr_count($records1[$fields[$i]],'.')==0
                     //если в данных нет тире
@@ -427,9 +455,13 @@ class DB {
 
 class html_form {
 
-    function getSelectYear($name, $options) {
-
-        $sel = "<select id='select' class='form-control' name='.$name.'";
+    function getSelectYear($name,$label='', $options, $width = 100) {
+        $width .= 'px';
+        $sel = '';
+        if ($label != '') {
+            $sel .= "<label class='form-label' for='select' style='margin-left: 10px; margin-top: 5px;'>$label</label>";
+        }
+        $sel .= "<select id='select' style = 'width: $width; float: left' class='form-control' name='$name'";
         for ($i = 0; $i < count($options); $i++) {
             $sel .= "
         <option value='$options[$i]'>$options[$i]</option>
@@ -439,20 +471,22 @@ class html_form {
     }
 
     //метод создаёт формы для удалённого автокомплита
-    function autocompleteTextArea($id,$label,$width=600,$height=60) {
+    function get_country_autocomplete($id,$label,$width=600,$height=60) {
 
-        echo '<script src="/js/jquery/js/jquery-ui-1.10.3.custom.js"></script>';
+        include 'html/template.html';
+        echo '<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">';
         echo '<script src="/js/jquery/js/jquery-1.9.1.js"></script>';
+        echo '<script src="/js/jquery/js/jquery-ui-1.10.3.custom.js"></script>';
         echo '<script src="/js/complete.js"></script>';
 
         $width .= 'px';
         $height.= 'px';
-
+        $f = '';
         if ($label!='') {
-            echo "<label for='$id' class='form-label'>$label</label>";
+            $f = "<label for='$id' class='form-label'>$label</label>";
         }
-        return "<div class='ui-widget'>
-                <textarea name='$id' id=$id style='width: $width; height: $height'></textarea>
+        return $f .= "<div class='ui-widget'>
+                <input class='form-control' name='autocomplete' id='country_list' style='width: $width; height: $height'>
               </div>";
 
     }
@@ -465,7 +499,7 @@ class html_form {
         else {
             $type = 'text';
         }
-        echo "<input type=$type value='$value' name='$name'>";
+        return "<input type=$type value='$value' name='$name'>";
     }
 
     //Метод открывает форму. Параметры - файл обработки и метод ПД
@@ -492,7 +526,7 @@ class html_form {
         return $f .= "<input name='name$id' type='$type' value='$value' class='form-control' id='$id' style='width: $width;'>";
     }
 
-    function getCheckBox($id,$label='',$status='checked') {
+    function getCheckBox($id,$label='',$value,$status='checked') {
         include 'html/template.html';
         if ($status != 'checked') {
             $cheked = '';
@@ -500,11 +534,10 @@ class html_form {
         else {
             $cheked = 'checked';
         }
-        $f = "<input name='name$id' value='$label' $cheked type='checkbox' class='form-check-input' id='$id'>";
+        $f = "<input name='name$id' value='$value' $cheked type='checkbox' class='form-check-input' id='$id'>";
         if ($label!='') {
             $f .= "<label for='$id' style='margin-left: 10px; margin-bottom: 5px;' class='form-check-label'>$label</label>";
         }
-        echo '<br><br>';
         return $f;
     }
 }
@@ -535,7 +568,7 @@ class user {
 
     function is_site_admin() {
         $flag = false;
-        if ($this->name == 'Пахан') {
+        if ($this->name == 'Администратор информационной системы') {
             $flag = true;
         }
         return $flag;
@@ -583,10 +616,11 @@ class user {
         $DB->setConnect();
         $password = md5($password);
 
-        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0");
+        $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0",'*');
+
         if (count(mysqli_fetch_assoc($users)) > 0) {
             if (setcookie('user',$login,time() + 3600*24, "/")) {
-               header('Location: index.php?data=1');
+                header('Location: index.php?data=1');
             }
         }
         foreach ($users as $user) {
@@ -596,7 +630,7 @@ class user {
     //метод выкидывает пользователя из системы
     function unAuth_user() {
         setcookie('user','nahuy_otsyuda',time() - 10000*24, "/");
-        header('Location: ');
+        header('Location: auth_form.php');
     }
 
 }
@@ -707,9 +741,11 @@ class Bootstrap {
         }
         $list = "<ul class='list-group' style='width: $width'>";
         for ($i = 0; $i < count($names_array); $i++) {
-            $list .= "
+            if ($names_array[$i] != '') {
+                $list .= "
             <li class='list-group-item'>$names_array[$i]</li>
             ";
+            }
         }
         $list .= '</ul>';
         return $list;

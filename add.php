@@ -10,9 +10,7 @@ $form  = new html_form();
 
 $assoc = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`get_name` = '$table'",'*');
 
-
-
-$form->openForm("add_script.php?$table",'post');
+echo $form->openForm("add_script.php?$table",'post');
 echo '<div style="position: absolute; left: 50%; top: 50%;-webkit-transform: translate(-50%, -50%);-moz-transform: translate(-50%, -50%);-ms-transform: translate(-50%, -50%);-o-transform: translate(-50%, -50%);transform: translate(-50%, -50%);>';
 $i = 0;
 foreach ($assoc as $arr) {
@@ -24,9 +22,3 @@ foreach ($assoc as $arr) {
 echo '<br>';
 echo $form->closeForm('Добавить','success');
 echo '</div>';
-
-
-
-
-
-

@@ -47,7 +47,7 @@ if ($_GET['action_role']==1) {
 
     for ($i = 0; $i < count($all_roles); $i++) {
         if (in_array($user_roles[$i],$all_roles)) {
-            echo $form->getCheckBox($i,$DB->getAllRoles()[$i+1]);
+            echo $form->getCheckBox($i,$DB->getAllRoles()[$i+1],1);
         }
 
         else {
