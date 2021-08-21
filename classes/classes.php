@@ -134,7 +134,7 @@ class DB {
     //зависимости сервера (локальный или продакшн)
     function db_param() {
         if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
-            echo 'локалка';
+            $this->db_production = 0;
             $this->db_host = 'localhost';
             $this->db_user = 'root';
             $this->db_password = '';
@@ -143,12 +143,144 @@ class DB {
         }
         else {
             //echo 'сервак';
+            $this->db_production = 1;
             $this->db_host = 'bsu-do-sql-pegas.bsu.edu.ru';;
             $this->db_user = 'ADMIN';
             $this->db_password = 'big#psKT';
             $this->db_base = 'administration2021';
             $this->db_production = 1;
         }
+    }
+
+
+    //метод выводит динамический селеуктор, с данными из
+    // заданного поля заданной таблицы
+    // $fields - массив, 1 элемент - идентификатор (или параметр GET), 2 элемент - отбираемое поле
+//    function getSelectorForDataBase($table_name,$fields,$where,$header,$get_name) {
+//        //текущий урл
+//        $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+//
+//        //Ключ  значение массива, переданного в функцию
+//        $key = array_keys($get_name)[0];
+//        $value = array_values($get_name)[0];
+//        pre($key,1);
+//        pre($value,2);
+//
+//        //разбор урла на компоненты
+//        /*pre*/($parse_url =  parse_url($url));
+//
+//        $variable = "<form class='form-control' action='post'>";
+//            $variable .= "<select class='form-select' name='sel' onchange='document.location=this.options[this.selectedIndex].value'>";
+//                $variable .=  "<option value='#'>$header</option>";
+//                    $fields_string = implode(',',$fields);
+//                    $records = $this->getRecordsByConditionFetchAssoc($table_name,$where,$fields_string);
+//
+//                    ($parse_url_query = explode('&',$parse_url["query"]));
+//                    $t_n = $parse_url_query[0];
+//                    unset($parse_url_query[0]);
+//
+//                    //массив, где значения имеющиеся в урле гет параметры
+//                    /*pre*/($parse_url_query = array_values($parse_url_query));
+//
+//                    for ($i = 0; $i < count($parse_url_query); $i++) {
+//                        $key_val[] = explode('=',$parse_url_query[$i]);
+//                    }
+//
+//                    for ($i = 0; $i < count($key_val); $i++) {
+//                        for ($g = 0; $g < count($key_val[$i]); $g++) {
+//                            $url_array[$key_val[$i][0]] = $key_val[$i][1];
+//                        }
+//                    }
+//
+//                    $keys = array_keys($url_array);
+//                    $values = array_values($url_array);
+//                    /*pre*/($parse_url);
+//
+//                     $main_url = /*$parse_url['host'].*/$parse_url['path']."?$t_n";
+//
+//                    for ($i = 0; $i < count($url_array);$i++) {
+//                        $main_url .= "&{$keys[$i]}={$url_array[$keys[$i]]}";
+//                    }
+//                    echo $main_url;
+//                        foreach ($records as $record) {
+//                            //fields[1] - данные для списка
+//                            //fields[0] - сопоставленный идентификатор
+//                            if (isset($_POST['sel'])/* AND $_POST['sel'] == 1*/) {
+//                                $selector_status = 'selected';
+//                            }
+//                            else {
+//                                $selector_status = '';
+//                            }
+//                            $variable .=  "<option value='$main_url{$record[$fields[1]]}' $selector_status>{$record[$fields[1]]}</option>";
+//                }
+//            $variable .=  "</select>";
+//        $variable .=  "</form>";
+//        //http_redirect($main_url);
+//
+//        return $variable/*."$$main_url"*/;
+//    }
+
+
+    function getSelectorForDataBase($table_name,$fields,$where,$header,$get_name,$width=100,$label) {
+        //текущий урл
+        if (!isset($_GET[$get_name])) {
+            $header = $label;
+        }
+        else {
+            $header = $_GET[$get_name];
+        }
+        $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+        //Ключ  значение массива, переданного в функцию
+        $key = array_keys($get_name)[0];
+        $value = array_values($get_name)[0];
+
+
+        //разбор урла на компоненты
+        /*pre*/($parse_url =  parse_url($url));
+        $width .= 'px';
+        $variable = "<form style='border: none; width: $width; margin: auto' class='form-control' action='post'>";
+//        $variable = "<label for='sel'>$label</label>";
+        $variable .= "<div style='text-align: center'>$label</div>";
+        $variable .= "<select id='sel' style='width: $width; margin: auto' class='form-select' name='sel' onchange='document.location=this.options[this.selectedIndex].value'>";
+//        $variable .= "<label class='form-label' for='sel'>$label</label>";
+        $variable .=  "<option value='#'>$header</option>";
+        $fields_string = implode(',',$fields);
+        $records = $this->getRecordsByConditionFetchAssoc($table_name,$where,$fields_string);
+
+        ($parse_url_query = explode('&',$parse_url["query"]));
+        unset($parse_url_query[0]);
+
+        //массив, где значения имеющиеся в урле гет параметры
+        /*pre*/($parse_url_query = array_values($parse_url_query));
+
+        for ($i = 0; $i < count($parse_url_query); $i++) {
+            $key_val[] = explode('=',$parse_url_query[$i]);
+        }
+
+        for ($i = 0; $i < count($key_val); $i++) {
+            for ($g = 0; $g < count($key_val[$i]); $g++) {
+                $url_array[$key_val[$i][0]] = $key_val[$i][1];
+            }
+        }
+
+
+        foreach ($records as $record) {
+            //fields[1] - данные для списка
+            //fields[0] - сопоставленный идентификатор
+            if (isset($_POST['sel'])/* AND $_POST['sel'] == 1*/) {
+                $selector_status = 'selected';
+            }
+            else {
+                $selector_status = '';
+            }
+
+            $variable .=  "<option value='$url&$get_name={$record[$fields[0]]}' $selector_status>{$record[$fields[1]]}</option>";
+        }
+        $variable .=  "</select>";
+        $variable .=  "</form>";
+
+        return $variable;
     }
 
     function table_list() {
@@ -270,7 +402,7 @@ class DB {
     }
 
     //метод формирует excel файл из таблицы и заголовков
-    function reportToExcel($content,$headers) {
+    function reportToExcel($content,$headers,$filename = 'Отчёт') {
         require_once 'Excel/Classes/PHPExcel.php';
         $cells = ['A', 'B', 'C', 'D', 'E',
                   'F', 'G', 'H', 'I', 'J',
@@ -296,7 +428,7 @@ class DB {
             }
         }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="Отчёт.xlsx');
+        header('Content-Disposition: attachment; filename="'.$filename.'.xlsx');
         header('Cash-Control: max-age=0');
         $file = PHPExcel_IOFactory::createWriter($excel,'Excel2007');
         $file->save('php://output');
@@ -503,8 +635,11 @@ class html_form {
     }
 
     //Метод открывает форму. Параметры - файл обработки и метод ПД
-    function openForm($action,$method='POST') {
-        return "<form action='$action' method='$method'>";
+    function openForm($action,$method='POST',$attr = '') {
+        if ($attr != '') {
+            $attr = "enctype='multipart/form-data'";
+        }
+        return "<form $attr action='$action' method='$method'>";
     }
     //Метод закрывает форму, можно передать цвет и текст кнопки. Если не передать, дефолтный цвет - success, текст - Отправить
     function closeForm($button_text="Отправить",$class='success') {
@@ -617,15 +752,19 @@ class user {
         $password = md5($password);
 
         $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0",'*');
-
         if (count(mysqli_fetch_assoc($users)) > 0) {
+            foreach ($users as $user) {
+                $this->name = $user['fullname'];
+            }
             if (setcookie('user',$login,time() + 3600*24, "/")) {
+
+                $log = new log();
+                $log->fixed($_COOKIE,'Авторизация в системе');
                 header('Location: index.php?data=1');
             }
         }
-        foreach ($users as $user) {
-            $this->name = $user['fullname'];
-        }
+
+
     }
     //метод выкидывает пользователя из системы
     function unAuth_user() {

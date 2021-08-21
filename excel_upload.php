@@ -1,4 +1,5 @@
 <?php
+
 //классы
 require_once 'classes/classes.php';
 //Библиотека
@@ -8,7 +9,6 @@ require_once 'Excel/Classes/PHPExcel.php';
 global $DB;
 $use = new user();
 $use->setUserData();
-
 //имя таблицы
 $table_name = array_keys($_GET)[0];
 //массив латинских букв для обращения к ячейкам
@@ -32,9 +32,10 @@ foreach ($headers_from_database_for_compares as $headers_from_database_for_compa
     $headers_from_database_for_compare[] = $headers_from_database_for_compar['descriptor_n'];
 }
 
+
 //если массив расхождений не пустой - пользователь выбрал неверный файл для загрузки
-if (array_diff($headers_from_database_for_compare,$headers_from_excel) != NULL) {
-    exit('<h1 style="text-align: center; color: red; margin-top: 120px;">Неверный файл для загрузки. Выберите верный файл и повторите попытку. <a href="/table.php?'.$table_name.'">Назад</a></h1>');
+if ((array_diff($headers_from_database_for_compare,$headers_from_excel) != NULL)) {
+    exit('<h1 style="text-align: center; color: #ff0000; margin-top: 120px;">Неверный файл для загрузки. Выберите верный файл и повторите попытку. <a href="/table.php?' .$table_name.'">Назад</a></h1>');
 }
 
 
@@ -48,25 +49,47 @@ for ($i = 0; $i < count($headers_from_database); $i++) {
         }
     }
 }
+$databases_fieldss = $DB->getTableFieldsName($table_name,1);
+//ид
+unset($databases_fieldss[0]);
+//автор
+unset($databases_fieldss[7]);
+//год
+unset($databases_fieldss[8]);
+//статус
+unset($databases_fieldss[9]);
+$databases_fieldss = (array_values($databases_fieldss));
+
+
 
 //Проходимся по всем записям
 $i=2;
+
 while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
     //объект для вставки записи в БД
+
     $insert = new stdClass();
-    for ($k = 1; $k <= count($databases_fields); $k++) {
+
+    for ($k = 1; $k <= count($databases_fieldss); $k++) {
         //формируем объект - свойство элемент массива $databases_fields (оно же - поле БД)
-        $insert->{$databases_fields[$k-1]} = $excel->getActiveSheet()->getCell($using_splinters[$k-1].$i)->getValue();
+        echo 'я кручусь в цикле<br>';
+        $insert->{$databases_fieldss[$k-1]} = $excel->getActiveSheet()->getCell($using_splinters[$k-1].$i)->getValue();
     }
+    pre($insert);
     //Автор и признак удаления записи
-    $insert->author = $use->name;
+    $insert->author = $use->login;
+    $insert->year = 2021;
     $insert->status = 1;
     //вставляем запись
-    $DB->insert_record($table_name,$insert);
+    echo 2;
+    pre($insert);
+    if ($DB->insert_record($table_name,$insert)) {
+        echo 'удачно';
+    }
     $i++;
 }
 //лог
 $log = new log();
 $log->fixed($use->name,'Импорт данных из файла Excel');
-echo '<script>`Файл загружен. Порсле нажатия кнопки ОК загрузится обновлённая таблица`</script>';
+echo '<script>alert(`Файл загружен. Порсле нажатия кнопки ОК загрузится обновлённая таблица`)</script>';
 echo "<script>window.location.replace('/table.php?$table_name');</script>";

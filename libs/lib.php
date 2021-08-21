@@ -57,7 +57,8 @@ function debug() {
     error_reporting(E_ALL);
 }
 //вывод для отладки
-function pre($object) {
+function pre($object,$header='Объект') {
+    echo "<h6><b>$header</b></h6>";
     echo '<pre>';
     var_dump($object);
     echo '</pre>';
@@ -89,3 +90,156 @@ function getUserInfoBadge($name) {
         </div>
       </div>';
 }
+
+//функция определяет какие фильтры выводить для той или иной таблицы
+function getFilters($get_name) {
+
+    //Данная функция на основе названия таблицы БД в GET-параметре выберет необходимые объекты и вернёт их
+    //Затем данные объекты будут переданы в метод создания селектора (файл !!!table.php!!!)
+    //Если в системе появляется новая таблица, то необходимо создать новый CASE с её названием
+    //И в него засунуть объекты, необходимые для данной таблицы (регулируется техническим заданием от заказчика)
+
+    /*
+     * !!!СТРУКТУРА ОБЪЕКТА!!!:
+     * db_table_name    - таблица базы данных из которой берутся значения селектора
+     * db_table_fields  - !!!МАССИВ!!! Первое поле - то, что будет в списке, второе - сопоставленный ему GET-параметр в адресной строке
+     * where            - Условие отбора записей
+     * header           - Дефолтный заголовок селектора
+     * get_name         - Имя GET-Параметра !!!ДОЛЖНО СОВПАДАТЬ С ПОЛЕМ ТАБЛИЦЫ БАЗЫ ДАННЫХ, КОТОРОЕ МЫ ХОТИМ ИЗВЛЕЧЬ ДЛЯ ФИЛЬТРАЦИИ ДАННЫХ!!!
+     * width            - Ширина селектора (CSS)
+     * label            - Название (Выводится в центре над селектором)
+     * */
+
+
+
+    switch ($get_name) {
+
+        case 'och':
+            //селектор для учебного года
+            $object0 = new stdClass();
+            $object0->db_table_name = 'years';
+            $object0->db_table_fields = ['year_calendar','year_calendar'];
+            $object0->where = '';
+            $object0->header = 'Учебный год';
+            $object0->get_name = 'year';
+            $object0->width = 500;
+            $object0->label = 'Учебный год';
+
+            //селектор для учебного заведения
+            $object1 = new stdClass();
+            $object1->db_table_name = 'users';
+            $object1->db_table_fields = ['login','fullname'];
+            $object1->where = '`is_science` = 1';
+            $object1->header = 'Учебное заведение';
+            $object1->get_name = 'author';
+            $object1->width = 800;
+            $object1->label = 'Учебное заведение';
+            $obj[] = $object0;
+            $obj[] = $object1;
+            break;
+
+
+        case 'zaoch':
+
+            //селектор для учебного года
+            $object2 = new stdClass();
+            $object2->db_table_name = 'years';
+            $object2->db_table_fields = ['year_calendar','year_calendar'];
+            $object2->where = '';
+            $object2->header = 'Учебный год';
+            $object2->get_name = 'year';
+            $object2->width = 500;
+            $object2->label = 'Учебный год';
+
+            //селектор для учебного заведения
+            $object3 = new stdClass();
+            $object3->db_table_name = 'users';
+            $object3->db_table_fields = ['login','fullname'];
+            $object3->where = '`is_science` = 1';
+            $object3->header = 'Учебное заведение';
+            $object3->get_name = 'author';
+            $object3->width = 800;
+            $object3->label = 'Учебное заведение';
+            $obj[] = $object2;
+            $obj[] = $object3;
+            break;
+
+        /*case 'zaoch':
+
+            //селектор для учебного года
+            $object4 = new stdClass();
+            $object4->db_table_name = 'years';
+            $object4->db_table_fields = ['year_calendar','year_calendar'];
+            $object4->where = '';
+            $object4->header = 'Учебный год';
+            $object4->get_name = 'year';
+            $object4->width = 500;
+            $object4->label = 'Учебный год';
+
+            //селектор для учебного заведения
+            $object5 = new stdClass();
+            $object5->db_table_name = 'users';
+            $object5->db_table_fields = ['login','fullname'];
+            $object5->where = '`is_science` = 1';
+            $object5->header = 'Учебное заведение';
+            $object5->get_name = 'vuz';
+            $object5->width = 800;
+            $object5->label = 'Учебное заведение';
+            break;*/
+
+    }
+    return $obj;
+}
+
+function parseGetData() {
+    //данный алгоритм парсит урл, отбирает самые последние значения для всех параметров ГЕТ и проводит сортировку данных в таблице по данным параметрам
+    $parse = ($array = explode('&',parse_url($url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])['query']));
+    unset($parse[0]);
+    $parse = array_values($parse);
+
+    for ($i = 0; $i < count($parse); $i++) {
+        $parse_string = explode('=',$parse[$i]);
+        $object = new stdClass();
+        for ($g = 0; $g < count($parse_string); $g++) {
+            $object->{$parse_string[0]} = $parse_string[1];
+        }
+        $obj[] = get_object_vars($object);
+        unset($object);
+    }
+
+    for ($i = 0; $i < count($obj); $i++) {
+        $parameters[] = array_keys($obj[$i])[0];
+        $values[] = array_values($obj[$i])[0];
+    }
+
+
+//Были получены значения контрольных элементов массива
+//pre($parameters,исх);
+    for ($i = 0; $i < count($parameters); $i++) {
+        $fixed = $parameters[$i];
+        //echo 'Зафиксировал значение '.$fixed.'<br>';
+        for ($g = $i+1; $g < count($parameters); $g++) {
+            //временный массив
+            $temporary_array[] = $parameters[$g];
+        }
+        if (!(in_array($fixed,$temporary_array) == TRUE)) {
+            //echo 'удалил '.$parameters[$i].'<br>';
+            $control[] = $i;
+        }
+        //удаляем временный массив
+        unset($temporary_array);
+
+    }
+    //сопоставляем массивы и самые актуальные данные пишем в объект, который в итоге вернём
+    pre($control,1);
+    $database_filter = new stdClass();
+    for ($i = 0; $i < count($parameters); $i++) {
+        if (in_array($i,$control)) {
+            $database_filter->{$parameters[$i]} = $values[$i];
+        }
+    }
+    return get_object_vars($database_filter);
+//pre($parameters,2);
+}
+
+

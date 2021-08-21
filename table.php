@@ -1,4 +1,5 @@
 <?php
+
 //классы
 require_once 'classes/classes.php';
 //Библиотека
@@ -7,11 +8,36 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+//получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
+pre($filters = parseGetData());
+
+//На основе данного массива генерируем условие отбора данных для БД
+$keys   = array_keys($filters);
+$values = array_values($filters);
+$condition = '`status` = 1 AND ';
+for ($i = 0; $i < count($filters); $i++) {
+    if ($i != count($filters)-1) {
+        $and = 'AND ';
+    }
+    else {
+        $and = '';
+    }
+     $condition .= "`{$keys[$i]}` = '{$values[$i]}' $and";
+}
+echo $condition;
+
 /*echo '<script src="js/jquery/js/jquery-1.9.1.js"></script>';
 echo '<script src="js/jquery/js/jquery-ui-1.10.3.custom.js"></script>';
 
 echo '<script src="js/complete.js"></script>';*/
 
+
+if ($DB->db_production == 1) {
+    $text = '/monitoring_international_2021';
+}
+else {
+    $text = '';
+}
 
 //вычисляем GET
 $get = array_keys($_GET)[0];
@@ -106,7 +132,7 @@ if ($ad = $_POST['selector'] != NULL) {
 }
 
 
-$content = $DB->getRecordsForTableInterfaceArray($get,"`status` = 1 $filter_year_text $limit",'','*');
+$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'','*');
 
 for ($i=0; $i <= count($content); $i++) {
     for ($g=0; $g <= count($content[$i]); $g++) {
@@ -118,42 +144,17 @@ for ($i=0; $i <= count($content); $i++) {
 
 $content = array_values($content);
 
-if ($table_name == 'Очная форма обучения' OR $table_name == 'Заочная форма обучения' OR $table_name == 'Иностранные слушатели') {
-    $years = array(2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032);
-    $selector_form = $form->openForm('/table.php?och','post');
-    $selector_form .= $form->getSelectYear('selector',' Учебный год',$years);
-    $selector_form .= '<br>';
-    $selector_form .= '<br>';
-    $selector_form .= $form->closeForm('Показать','success');
-}
-else {
-    $selector_form = '';
-}
-
-
 
 
 $m_up_left = [
     "<a href='print_excel.php?$get'>Сохранить в Excel всю таблицу<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
-    '<h6>Показать записей:
-<a href="/table.php?'.$get.'&limit=20">20</a>
-<a href="/table.php?'.$get.'&limit=40">40</a>
-<a href="/table.php?'.$get.'&limit=60">60</a>
-<a href="/table.php?'.$get.'&limit=80">80</a>
-<a href="/table.php?'.$get.'&limit=100">100</a>
-<a href="/table.php?'.$get.'&limit=150">150</a>
-<a href="/table.php?'.$get.'&limit=300">300</a>
-<a href="/table.php?'.$get.'&limit=500">500</a>
-<a href="/table.php?'.$get.'&limit=1000">1000</a>
-<a href="/table.php?'.$get.'&limit=all">Все</a>
-</h6>',
-    $selector_form,
+
     "<form enctype='multipart/form-data' method='post' action='excel_upload.php?$get'>
         <label class='form-label' for='excel'>Загрузить данные из Excel <a href='print_excel.php?$get&template=1'>(скачать шаблон загрузки)</a></label>
         <input class='form-control' type='file' name='excel' id='excel'>
         <button style='margin-top: 15px;' class='btn btn-sm btn-success' type='submit'>Загрузить</button>
     </form>",
-    "<a class='btn btn-success' href='add.php?$get' style='border-radius: 100px'>Добавить одну запись +</a>"
+    "<a class='btn btn-outline-success' href='add.php?$get' style='border-radius: 100px'><div style='color: black'>Добавить одну запись</div></a>"
 ];
 
 /*$form_date = new html_form();
@@ -181,8 +182,8 @@ for ($i = 0; $i < count($content); $i++) {
     unset($content[$i][count($content[$i]) - 1]);
     //отсекаем года для указанных таблиц
     if ($table_name == 'Очная форма обучения' OR $table_name == 'Заочная форма обучения' OR $table_name == 'Иностранные слушатели') {
-            unset($content[$i][count($content[$i]) - 1]);
-        }
+        unset($content[$i][count($content[$i]) - 1]);
+    }
 //        unset($content[$i][count($content[$i]) - 1]);
 }
 
@@ -193,4 +194,56 @@ $menu_html = $bootstrap->setListMenu($menu_list);
 $html = [$menu_html_up_left,$menu_html_up_right];
 $html2 = [$html_table];
 echo $bootstrap->setContainer([6,6],$html);
+
+
+if (!isset(array_keys($_GET)[1])) {
+    $get_param = 'Выберите календарный год';
+}
+else {
+    $get_param = array_values($_GET)[1];
+}
+
+if (!isset(array_keys($_GET)[2])) {
+    $get_param_vuz = 'Выберите учебное заведение';
+}
+else {
+    $get_param_vuz = array_values($_GET)[2];
+
+    $get_param_vuz_fullname = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$get_param_vuz'",'*');
+
+    foreach ($get_param_vuz_fullname as $get_param_vuz_fullname1) {
+        $name = $get_param_vuz_fullname1['fullname'];
+    }
+}
+
+
+//array ('year' => 1) - ключ означает имя гет параметра, 1 - порядок его появления в урл адресе. 0 не занимать, на месте 0 всегда имя таблицы БД для отрисовки интерфейса
+echo '<br>';
+echo '<br>';
+echo "<a href='$text/table.php?$get' style='text-align: center'><h5>Очистить фильтры</h5></a>";
+echo '<br>';
+
+//получаем все данные для фильтров нужной таблицы
+$filters_data = (getFilters($get));
+//pre($filters_data);
+for ($i = 0; $i < count($filters_data); $i++) {
+        $select[] = $DB->getSelectorForDataBase(
+            $filters_data[$i]->db_table_name,
+            $filters_data[$i]->db_table_fields,
+            $filters_data[$i]->where,
+            $filters_data[$i]->header,
+            $filters_data[$i]->get_name,
+            $filters_data[$i]->width,
+            $filters_data[$i]->label
+        );
+        $boot[] = $bootstrap->setContainer([12],$select);
+        unset($select);
+}
+
+for ($i = 0; $i < count($boot); $i++) {
+    echo $boot[$i];
+    echo '<br>';
+}
+
 echo $bootstrap->setContainer([12],$html2);
+

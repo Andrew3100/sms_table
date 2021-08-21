@@ -6,6 +6,7 @@ include 'db/db_config.php';
 global $DB;
 $table = array_keys($_GET)[0];
 
+
 $headers = $DB->getInterfaceFields($table);
 $content = $DB->getRecordsForTableInterfaceArray($table);
 
@@ -43,4 +44,5 @@ for ($i = 0; $i < count($content); $i++) {
 if ($_GET['template'] == 1) {
     unset($content_all);
 }
-$DB->reportToExcel($content_all,$headers);
+$filename = $table;
+$DB->reportToExcel($content_all,$headers,$filename);

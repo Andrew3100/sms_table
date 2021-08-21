@@ -10,5 +10,5 @@ $p = $_POST['namepass'];
 
 $user = new user();
 
-
 $user->authUser($l,$p);
+
