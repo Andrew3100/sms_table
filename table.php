@@ -8,24 +8,52 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+require_once 'Excel/Classes/PHPExcel.php';
+
+$excel = PHPExcel_IOFactory::load('countries.xlsx'/*['excel']['tmp_name']*/);
+
+$g = 3;
+
+while ($value = $excel->getActiveSheet()->getCell('B'.$g)->getValue()!="") {
+    $insert = new stdClass();
+    $insert->name = $excel->getActiveSheet()->getCell('C'.$g)->getValue();
+    $insert->fullname = $excel->getActiveSheet()->getCell('D'.$g)->getValue();
+    $ins = $DB->insert_record('ref_country',$insert);
+    $g++;
+}
+
+
+exit();
+
+
+
+
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
-pre($filters = parseGetData());
+($filters = parseGetData());
 
 //На основе данного массива генерируем условие отбора данных для БД
-$keys   = array_keys($filters);
-$values = array_values($filters);
-$condition = '`status` = 1 AND ';
-for ($i = 0; $i < count($filters); $i++) {
-    if ($i != count($filters)-1) {
-        $and = 'AND ';
-    }
-    else {
-        $and = '';
-    }
-     $condition .= "`{$keys[$i]}` = '{$values[$i]}' $and";
-}
-echo $condition;
+/*pre*/($keys   = array_keys($filters));
+/*pre*/($values = array_values($filters));
+if ((count($keys)) > 0) {
+    $condition = '`status` = 1 AND ';
+    for ($i = 0; $i < count($filters); $i++) {
+        if ($i != count($filters)-1) {
+            $and = 'AND ';
+        }
+        else {
+            $and = '';
+        }
+        $condition .= "`{$keys[$i]}` = '$values[$i]' $and";
 
+    }
+}
+else {
+    $condition = '`status` = 1';
+}
+
+
+/*Для скрытой формы, так как проблемы с экранированием символов*/
+$condition1 = str_replace("'",'()',$condition);
 /*echo '<script src="js/jquery/js/jquery-1.9.1.js"></script>';
 echo '<script src="js/jquery/js/jquery-ui-1.10.3.custom.js"></script>';
 
@@ -245,5 +273,12 @@ for ($i = 0; $i < count($boot); $i++) {
     echo '<br>';
 }
 
+$report_form = new html_form();
+$report =  $report_form->openForm("filter_report.php",'get');
+$report .= $report_form->hidden($condition1,'hid');
+$report .= $report_form->hidden($get,'hid_t_n');
+$report .= $report_form->closeForm('Скачать отчёт в Excel','btn btn-outline-success');
+
+echo $bootstrap->setContainer([12],[$report]);
 echo $bootstrap->setContainer([12],$html2);
 

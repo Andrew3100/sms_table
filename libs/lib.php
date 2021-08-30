@@ -5,7 +5,7 @@ $user = new user();
 $user->setUserData();
 
 //отладка
-debug();
+//debug();
 //авторизация
 is_auth();
 
@@ -79,7 +79,6 @@ function GetDateByText($text) {
     return $date;
 }
 
-GetDateByText(44433);
 
 function getUserInfoBadge($name) {
     echo '<div class="container-fluid">
@@ -108,6 +107,11 @@ function getFilters($get_name) {
      * get_name         - Имя GET-Параметра !!!ДОЛЖНО СОВПАДАТЬ С ПОЛЕМ ТАБЛИЦЫ БАЗЫ ДАННЫХ, КОТОРОЕ МЫ ХОТИМ ИЗВЛЕЧЬ ДЛЯ ФИЛЬТРАЦИИ ДАННЫХ!!!
      * width            - Ширина селектора (CSS)
      * label            - Название (Выводится в центре над селектором)
+     *
+
+     * !!!Созданные объекты обязательно записать в массив!!!
+     *
+     *
      * */
 
 
@@ -164,7 +168,7 @@ function getFilters($get_name) {
             $obj[] = $object3;
             break;
 
-        /*case 'zaoch':
+        case 'aus':
 
             //селектор для учебного года
             $object4 = new stdClass();
@@ -185,7 +189,37 @@ function getFilters($get_name) {
             $object5->get_name = 'vuz';
             $object5->width = 800;
             $object5->label = 'Учебное заведение';
-            break;*/
+            $obj[] = $object4;
+            $obj[] = $object5;
+            break;
+
+        case 'international':
+
+            //селектор для учебного года
+            $object6 = new stdClass();
+            $object6->db_table_name = 'international';
+            $object6->db_table_fields = ['year_calendar','year_calendar'];
+            $object6->where = '';
+            $object6->header = 'Учебный год';
+            $object6->get_name = 'year';
+            $object6->width = 500;
+            $object6->label = 'Учебный год';
+
+            //селектор для учебного заведения
+            $object7 = new stdClass();
+            $object7->db_table_name = 'users';
+            $object7->db_table_fields = ['login','fullname'];
+            $object7->where = '`is_science` = 1';
+            $object7->header = 'Учебное заведение';
+            $object7->get_name = 'vuz';
+            $object7->width = 800;
+            $object7->label = 'Учебное заведение';
+            $obj[] = $object6;
+            $obj[] = $object7;
+            break;
+
+
+
 
     }
     return $obj;
@@ -231,7 +265,7 @@ function parseGetData() {
 
     }
     //сопоставляем массивы и самые актуальные данные пишем в объект, который в итоге вернём
-    pre($control,1);
+    //pre($control,1);
     $database_filter = new stdClass();
     for ($i = 0; $i < count($parameters); $i++) {
         if (in_array($i,$control)) {

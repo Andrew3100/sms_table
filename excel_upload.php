@@ -72,7 +72,7 @@ while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
 
     for ($k = 1; $k <= count($databases_fieldss); $k++) {
         //формируем объект - свойство элемент массива $databases_fields (оно же - поле БД)
-        echo 'я кручусь в цикле<br>';
+
         $insert->{$databases_fieldss[$k-1]} = $excel->getActiveSheet()->getCell($using_splinters[$k-1].$i)->getValue();
     }
     pre($insert);

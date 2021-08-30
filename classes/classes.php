@@ -422,7 +422,7 @@ class DB {
             $s = 1;
             $n = 1;
             for ($g = 0; $g < count($content[$i]); $g++) {
-                $excel->getActiveSheet()->setCellValue($cells[$g].($i+1),$content[$i][$g]);
+                $excel->getActiveSheet()->setCellValue($cells[$g].($i),$content[$i][$g]);
                 $s++;
                 $n++;
             }
@@ -488,6 +488,9 @@ class DB {
         $ins = $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
         if (!$ins) {
             echo 'запись не вставлена';
+            echo '<pre>';
+            echo("INSERT INTO $table $string_fields VALUES $string_for_insert;");
+            echo '</pre>';
         }
         if ($print!='') {
             echo '<pre>';
@@ -637,6 +640,7 @@ class html_form {
     //Метод открывает форму. Параметры - файл обработки и метод ПД
     function openForm($action,$method='POST',$attr = '') {
         if ($attr != '') {
+            /*атрибут для формы передачи файла*/
             $attr = "enctype='multipart/form-data'";
         }
         return "<form $attr action='$action' method='$method'>";
@@ -958,3 +962,4 @@ class log {
 
     }
 }
+
