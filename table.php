@@ -1,5 +1,5 @@
 <?php
-
+echo date('d-m-Y',1630216443);
 //классы
 require_once 'classes/classes.php';
 //Библиотека
@@ -8,24 +8,20 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
-require_once 'Excel/Classes/PHPExcel.php';
 
-$excel = PHPExcel_IOFactory::load('countries.xlsx'/*['excel']['tmp_name']*/);
+$date = 1;
 
-$g = 3;
+//pre($get1 = $_GET['daten']);
+pre(array_keys($_GET));
+pre(array_values($_GET));
 
-while ($value = $excel->getActiveSheet()->getCell('B'.$g)->getValue()!="") {
-    $insert = new stdClass();
-    $insert->name = $excel->getActiveSheet()->getCell('C'.$g)->getValue();
-    $insert->fullname = $excel->getActiveSheet()->getCell('D'.$g)->getValue();
-    $ins = $DB->insert_record('ref_country',$insert);
-    $g++;
-}
+echo '<form method="get">
+<input type="date" id="date" name="daten" onchange="window.location.replace(`http://cms/table.php?och&date1=${document.getElementById(`date`).value}`)">
+</form>';
 
+echo $_GET['date'];
 
 exit();
-
-
 
 
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
