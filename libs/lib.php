@@ -15,17 +15,19 @@ function is_auth() {
     }
 }
 
+is_auth();
+debug();
 function getContentByMenu() {
     if ($_GET['data']==1) {
         $content = 'data.php';
     }
     else {
         if ($_GET['reports']==1) {
-            $content = 'reports.php';
+            $content = 'select_import.php';
         }
         else {
             if ($_GET['import']==1) {
-                $content = 'import.php';
+                $content = 'select_import.php';
             }
             if ($_GET['create']) {
                 $content = 'create_block.php';
@@ -50,6 +52,7 @@ function getContentByMenu() {
     }
     return $content;
 }
+
 //отладка
 function debug() {
     ini_set('display_errors', 0);

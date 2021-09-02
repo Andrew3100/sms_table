@@ -42,15 +42,17 @@ if ((array_diff($headers_from_database_for_compare,$headers_from_excel) != NULL)
 
 
 //получаем данные о полях БД, которые надо пополнять записями
-$headers_from_database = $DB->getRecordsForTableInterfaceArray('bsu_form_data',"`get_name` = '$table_name'",'fn');
-
+$headers_from_database = $DB->getRecordsForTableInterfaceArray('bsu_form_data',"`get_name` = '$table_name'",'id','fn',1);
+//pre($headers_from_database);
 for ($i = 0; $i < count($headers_from_database); $i++) {
     for ($g = 0; $g < count($headers_from_database[$i]); $g++) {
         if ($headers_from_database[$i][$g] != NULL) {
-            $databases_fields[] = $headers_from_database[$i][$g];
+            $databases_fields[] = $headers_from_database[$i][3];
         }
     }
 }
+
+
 $databases_fieldss = $DB->getTableFieldsName($table_name,1);
 //ид
 unset($databases_fieldss[0]);
@@ -62,7 +64,7 @@ unset($databases_fieldss[8]);
 unset($databases_fieldss[9]);
 $databases_fieldss = (array_values($databases_fieldss));
 
-pre($databases_fields,'первый массив полей');
+
 
 //Проходимся по всем записям
 $i=2;
@@ -75,11 +77,17 @@ while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
     for ($k = 1; $k <= count($databases_fieldss); $k++) {
         //формируем объект - свойство элемент массива $databases_fields (оно же - поле БД)
         $v = $excel->getActiveSheet()->getCell($using_splinters[$k-1].$i)->getValue();
-        pre($databases_fields,'массив полей');
-        //        pre($DB->getDataTypes($table_name,$databases_fields[$k-1]),'Тип данных поля');
-        if ($DB->getDataTypes($table_name,$databases_fields[$k-1]) == 'date') {
-            $date = new \DateTime($v);
-            $v = $date->format('YYYY-MM-DD');
+
+        if (
+            $DB->getDataTypes($table_name,$databases_fields[$k-1]) == 'date'
+            AND
+            $v !='Бессрочно'
+        ) {
+            echo $v;
+            echo '<hr>';
+            $new_date = GetDateByText($v);
+            $d = new DateTime($new_date);
+            $v = $d->format('Y-m-d');
             echo 'В нужном поле был изменён тип данных';
         }
         $insert->{$databases_fieldss[$k-1]} = $v;
@@ -97,9 +105,10 @@ while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
     }
     $i++;
 }
+
 //лог
 $log = new log();
 $log->fixed($use->name,'Импорт данных из файла Excel');
-exit();
+
 echo '<script>alert(`Файл загружен. Порсле нажатия кнопки ОК загрузится обновлённая таблица`)</script>';
 echo "<script>window.location.replace('/table.php?$table_name');</script>";

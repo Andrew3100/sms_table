@@ -137,14 +137,14 @@ class DB {
             $this->db_production = 0;
             $this->db_host = 'localhost';
             $this->db_user = 'root';
-            $this->db_password = '';
+            $this->db_password = 'root';
             $this->db_base = 'administration2021';
             $this->db_production = 0;
         }
         else {
             //echo 'сервак';
             $this->db_production = 1;
-            $this->db_host = 'bsu-do-sql-pegas.bsu.edu.ru';;
+            $this->db_host = 'bsu-do-sql-pegas.bsu.edu.ru';
             $this->db_user = 'ADMIN';
             $this->db_password = 'big#psKT';
             $this->db_base = 'administration2021';
@@ -160,9 +160,6 @@ class DB {
         $sql = "sELECT DATA_TYPE FROM information_schema.COLUMNS 
                 WHERE TABLE_SCHEMA='administration2021' 
                 AND TABLE_NAME='$table_name' AND COLUMN_NAME='$field'";
-        pre("sELECT DATA_TYPE FROM information_schema.COLUMNS 
-                WHERE TABLE_SCHEMA='administration2021' 
-                AND TABLE_NAME='$table_name' AND COLUMN_NAME='$field'");
         $types = $mysqli->query($sql);
         while ($ty = mysqli_fetch_assoc($types)) {
             $type = $ty['DATA_TYPE'];

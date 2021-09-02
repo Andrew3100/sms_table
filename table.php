@@ -8,24 +8,6 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
-/*$form = new html_form();
-echo $form->GetDynamicalSelectorForDate('date1','','date1','1');
-echo $form->GetDynamicalSelectorForDate('date2','','date2','2');*/
-
-
-
-//pre($get1 = $_GET['daten']);
-//pre(array_keys($_GET));
-//pre(array_values($_GET));
-/*
-echo '
-<input type="date" id="date" name="daten" onchange="window.location.replace(`http://cms/table.php?och&date1=${document.getElementById(`date`).value}`)">
-';
-
-echo $_GET['date'];*/
-
-
-
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
 ($filters = parseGetData());
 
@@ -52,10 +34,6 @@ else {
 
 /*Для скрытой формы, так как проблемы с экранированием символов*/
 $condition1 = str_replace("'",'()',$condition);
-/*echo '<script src="js/jquery/js/jquery-1.9.1.js"></script>';
-echo '<script src="js/jquery/js/jquery-ui-1.10.3.custom.js"></script>';
-
-echo '<script src="js/complete.js"></script>';*/
 
 
 if ($DB->db_production == 1) {
@@ -87,12 +65,7 @@ $bread = [
     "table_list.php?$for_link" => "$blocks",
     "#" => "$table_name"
 ];
-$active = [
-    '',
-    '',
-    '',
-    'active'
-];
+$active = ['','','','active'];
 
 //объекты
 $table =     new html_table();
@@ -124,7 +97,8 @@ foreach ($fields as $field) {
     $headers[] = $field['descriptor_n'];
     $headers_db[] = $field['fn'];
 }
-
+//pre($headers_db,1);
+echo implode(',',$headers_db);
 $fields = $DB->getTableFieldsName($get);
 
 for ($i = 0; $i < count($fields); $i++) {
@@ -139,38 +113,14 @@ $fields_for_interface = implode($fields_for_interface,',');
 $form = new html_form();
 
 
-
-if (!isset($_GET['limit'])) {
-    $limit = "Limit 100";
-}
-else {
-    if ($_GET['limit'] == 'all') {
-        $limit = '';
-    }
-    else {
-        $limits = $_GET['limit'];
-        $limit = "Limit $limits";
-    }
-}
 $filter_year_text='';
 if ($ad = $_POST['selector'] != NULL) {
     $filter_year_text = 'AND `year` = '.$_POST['selector'];
 }
 
-
-$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'','*');
-
-for ($i=0; $i <= count($content); $i++) {
-    for ($g=0; $g <= count($content[$i]); $g++) {
-        if ($content[$i][$g] == NULL) {
-            unset($content[$i][$g]);
-        }
-    }
-}
+$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'',implode(',',$headers_db),1);
 
 $content = array_values($content);
-
-
 
 $m_up_left = [
     "<a href='print_excel.php?$get'>Сохранить в Excel всю таблицу<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
@@ -183,12 +133,7 @@ $m_up_left = [
     "<a class='btn btn-outline-success' href='add.php?$get' style='border-radius: 100px'><div style='color: black'>Добавить одну запись</div></a>"
 ];
 
-/*$form_date = new html_form();
-$form = "<p>Отчёт за период</p>";
-$form .= $form_date->openForm('report_select.php','post');
-$form .=$form_date->getFormByType('date',1,'Начало периода',150);
-$form .=$form_date->getFormByType('date',2,'Конец периода',150).'<br>';
-$form .=$form_date->closeForm('Отчёт','success');*/
+
 
 
 
@@ -208,14 +153,14 @@ $chekers = $filter_date->getDataFilter(array('_date1','_date2'),$single_table_na
 $m_up_right = [$chekers];
 
 
-for ($i = 0; $i < count($content); $i++) {
+/*for ($i = 0; $i < count($content); $i++) {
     unset($content[$i][count($content[$i]) - 1]);
     //отсекаем года для указанных таблиц
     if ($table_name == 'Очная форма обучения' OR $table_name == 'Заочная форма обучения' OR $table_name == 'Иностранные слушатели') {
         unset($content[$i][count($content[$i]) - 1]);
     }
 //        unset($content[$i][count($content[$i]) - 1]);
-}
+}*/
 
 $menu_html_up_left = $bootstrap->setListMenu($m_up_left);
 $menu_html_up_right = $bootstrap->setListMenu($m_up_right);
