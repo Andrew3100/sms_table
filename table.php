@@ -1,5 +1,5 @@
 <?php
-echo date('d-m-Y',1630216443);
+
 //классы
 require_once 'classes/classes.php';
 //Библиотека
@@ -8,20 +8,22 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+/*$form = new html_form();
+echo $form->GetDynamicalSelectorForDate('date1','','date1','1');
+echo $form->GetDynamicalSelectorForDate('date2','','date2','2');*/
 
-$date = 1;
+
 
 //pre($get1 = $_GET['daten']);
-pre(array_keys($_GET));
-pre(array_values($_GET));
-
-echo '<form method="get">
+//pre(array_keys($_GET));
+//pre(array_values($_GET));
+/*
+echo '
 <input type="date" id="date" name="daten" onchange="window.location.replace(`http://cms/table.php?och&date1=${document.getElementById(`date`).value}`)">
-</form>';
+';
 
-echo $_GET['date'];
+echo $_GET['date'];*/
 
-exit();
 
 
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
@@ -65,7 +67,7 @@ else {
 
 //вычисляем GET
 $get = array_keys($_GET)[0];
-
+$single_table_name = array_keys($_GET)[0];
 
 $block = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$get'",'*');
 
@@ -188,17 +190,21 @@ $form .=$form_date->getFormByType('date',1,'Начало периода',150);
 $form .=$form_date->getFormByType('date',2,'Конец периода',150).'<br>';
 $form .=$form_date->closeForm('Отчёт','success');*/
 
-$form_check = new html_form();
 
-$chekers = '<h5>Отчёт по выборочным данным:<br></h5>'.$form_check->openForm("print_excel.php?$get",'post');
+
+/*$chekers = '<h5>Отчёт по выборочным данным:<br></h5>'.$form_check->openForm("print_excel.php?$get",'post');
 for ($i = 0; $i < count($headers); $i++) {
     $chekers .= $form_check->getCheckBox($i,$headers[$i],$headers_db[$i]).'<br>';
 }
 $chekers .= $form_check->hidden('hidden','hidden');
 $chekers .= $form_check->hidden($i,'hidden_count');
-$chekers .= $form_check->closeForm('Отчёт','success');
+$chekers .= $form_check->closeForm('Отчёт','success');*/
 
 //exit('1');
+$filter_date = new html_form();
+echo $get;
+$chekers = $filter_date->getDataFilter(array('_date1','_date2'),$single_table_name,array('Начало периода','Конец периода'));
+
 $m_up_right = [$chekers];
 
 
@@ -268,6 +274,8 @@ for ($i = 0; $i < count($boot); $i++) {
     echo $boot[$i];
     echo '<br>';
 }
+
+
 
 $report_form = new html_form();
 $report =  $report_form->openForm("filter_report.php",'get');

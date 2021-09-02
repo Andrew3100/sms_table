@@ -135,9 +135,9 @@ class DB {
     function db_param() {
         if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
             $this->db_production = 0;
-            $this->db_host = 'localhost';
-            $this->db_user = 'root';
-            $this->db_password = '';
+            $this->db_host = '172.32.2.12';
+            $this->db_user = 'dev';
+            $this->db_password = '123456';
             $this->db_base = 'object_adm';
             $this->db_production = 0;
         }
@@ -590,6 +590,34 @@ class DB {
 
 class html_form {
 
+
+//    function GetDynamicalSelectorForDate($get_param_name,$table_name,$id,$label) {
+//
+//        $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+//        $form =  $this->hidden($url,'url',1);
+//        $form .=  $this->hidden($get_param_name,'get_name',1);
+//        $form .=  $this->hidden($table_name,'table_name',1);
+//        $form .=  $this->hidden($id,'ide',1);
+//
+//        return $form .= '<input type="date" id="'.$id.'" name="" onchange="window.location.replace(`${document.getElementById(`url`).value}&${document.getElementById(`get_name`).value}=${document.getElementDyId(${document.getElementById(`ide`).value})}`)">';
+//
+//        //http://cms/table.php?${document.getElementById(`table_name`).value}
+//        /*&${document.getElementById(`get_name`).value}=${document.getElementById(`date`).value}`)*/
+//    }
+
+
+
+    function getDataFilter($id,$table_name,$label) {
+        pre($table_name,'гавно');
+        $form  = $this->openForm("table.php?$table_name",'get');
+        $form .= $this->getFormByType('date',$id[0],$label[0],200);
+        $form .= $this->getFormByType('date',$id[1],$label[1],200);
+        $form .= $this->closeForm('Выбрать','btn btn-outline-warning');
+        return $form;
+
+    }
+
+
     function getSelectYear($name,$label='', $options, $width = 100) {
         $width .= 'px';
         $sel = '';
@@ -634,7 +662,7 @@ class html_form {
         else {
             $type = 'text';
         }
-        return "<input type=$type value='$value' name='$name'>";
+        return "<input type=$type value='$value' id='$name' name='$name'>";
     }
 
     //Метод открывает форму. Параметры - файл обработки и метод ПД
