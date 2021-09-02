@@ -197,7 +197,7 @@ function getFilters($get_name) {
 
             //селектор для учебного года
             $object6 = new stdClass();
-            $object6->db_table_name = 'international';
+            $object6->db_table_name = 'years';
             $object6->db_table_fields = ['year_calendar','year_calendar'];
             $object6->where = '';
             $object6->header = 'Учебный год';

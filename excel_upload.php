@@ -17,6 +17,8 @@ $splinters = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', '
 $excel = PHPExcel_IOFactory::load($_FILES['excel']['tmp_name']);
 //счётчик
 $g = 0;
+
+
 //проходимся по 1 строке и считываем заголовки в ячейках
 while ($value = $excel->getActiveSheet()->getCell($splinters[$g].'1')->getValue()!="") {
     //получаем заголовки для определения того, верный ли файл был загружен
@@ -60,7 +62,7 @@ unset($databases_fieldss[8]);
 unset($databases_fieldss[9]);
 $databases_fieldss = (array_values($databases_fieldss));
 
-
+pre($databases_fields,'первый массив полей');
 
 //Проходимся по всем записям
 $i=2;
@@ -72,8 +74,15 @@ while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
 
     for ($k = 1; $k <= count($databases_fieldss); $k++) {
         //формируем объект - свойство элемент массива $databases_fields (оно же - поле БД)
-
-        $insert->{$databases_fieldss[$k-1]} = $excel->getActiveSheet()->getCell($using_splinters[$k-1].$i)->getValue();
+        $v = $excel->getActiveSheet()->getCell($using_splinters[$k-1].$i)->getValue();
+        pre($databases_fields,'массив полей');
+        //        pre($DB->getDataTypes($table_name,$databases_fields[$k-1]),'Тип данных поля');
+        if ($DB->getDataTypes($table_name,$databases_fields[$k-1]) == 'date') {
+            $date = new \DateTime($v);
+            $v = $date->format('YYYY-MM-DD');
+            echo 'В нужном поле был изменён тип данных';
+        }
+        $insert->{$databases_fieldss[$k-1]} = $v;
     }
     pre($insert);
     //Автор и признак удаления записи
@@ -91,5 +100,6 @@ while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
 //лог
 $log = new log();
 $log->fixed($use->name,'Импорт данных из файла Excel');
+exit();
 echo '<script>alert(`Файл загружен. Порсле нажатия кнопки ОК загрузится обновлённая таблица`)</script>';
 echo "<script>window.location.replace('/table.php?$table_name');</script>";

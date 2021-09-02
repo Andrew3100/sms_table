@@ -135,10 +135,10 @@ class DB {
     function db_param() {
         if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
             $this->db_production = 0;
-            $this->db_host = '172.32.2.12';
-            $this->db_user = 'dev';
-            $this->db_password = '123456';
-            $this->db_base = 'object_adm';
+            $this->db_host = 'localhost';
+            $this->db_user = 'root';
+            $this->db_password = '';
+            $this->db_base = 'administration2021';
             $this->db_production = 0;
         }
         else {
@@ -152,6 +152,23 @@ class DB {
         }
     }
 
+
+    function getDataTypes($table_name,$field) {
+        $mysqli = $this->setConnect();
+
+        //запрос на типы данных
+        $sql = "sELECT DATA_TYPE FROM information_schema.COLUMNS 
+                WHERE TABLE_SCHEMA='administration2021' 
+                AND TABLE_NAME='$table_name' AND COLUMN_NAME='$field'";
+        pre("sELECT DATA_TYPE FROM information_schema.COLUMNS 
+                WHERE TABLE_SCHEMA='administration2021' 
+                AND TABLE_NAME='$table_name' AND COLUMN_NAME='$field'");
+        $types = $mysqli->query($sql);
+        while ($ty = mysqli_fetch_assoc($types)) {
+            $type = $ty['DATA_TYPE'];
+        }
+        return $type;
+    }
 
     //метод выводит динамический селеуктор, с данными из
     // заданного поля заданной таблицы
@@ -784,7 +801,7 @@ class user {
         $password = md5($password);
 
         $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0",'*');
-        if (count(mysqli_fetch_assoc($users)) > 0) {
+//        if (count(mysqli_fetch_assoc($users)) > 0) {
             foreach ($users as $user) {
                 $this->name = $user['fullname'];
             }
@@ -794,7 +811,7 @@ class user {
                 $log->fixed($_COOKIE,'Авторизация в системе');
                 header('Location: index.php?data=1');
             }
-        }
+//        }
 
 
     }
