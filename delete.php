@@ -7,6 +7,8 @@ include 'db/db_config.php';
 global $DB;
 $id    = $_GET['del'];
 $table = $_GET['table'];
-
-$DB->deleteRecordById($table,$id);
-echo "<script>window.location.replace('table.php?$table')</script>";
+$u = new stdClass();
+$u->status = 0;
+if ($DB->update_recordById($table,$u,$id)) {
+    echo "<script>window.location.replace('table.php?$table')</script>";
+}

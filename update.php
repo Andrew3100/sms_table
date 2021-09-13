@@ -1,6 +1,6 @@
 
 <?php
-echo '<body style="background-color: #f3fbf3">';
+
 require_once 'libs/html_elements_lib.php';
 require_once 'libs/lib.php';
 require_once 'classes/classes.php';

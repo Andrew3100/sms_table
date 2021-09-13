@@ -1,5 +1,4 @@
 <?php
-
 //классы
 require_once 'classes/classes.php';
 //Библиотека
@@ -8,28 +7,50 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+$up = $DB->getRecordsByConditionFetchAssoc('aus','','id,qua');
+
+
+
+$get = array_keys($_GET)[0];
+
+
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
 ($filters = parseGetData());
-
 //На основе данного массива генерируем условие отбора данных для БД
 /*pre*/($keys   = array_keys($filters));
 /*pre*/($values = array_values($filters));
+
+
+
 if ((count($keys)) > 0) {
-    $condition = '`status` = 1 AND ';
+    $condition .= '`status` = 1 AND ';
     for ($i = 0; $i < count($filters); $i++) {
+
         if ($i != count($filters)-1) {
             $and = 'AND ';
         }
         else {
             $and = '';
         }
-        $condition .= "`{$keys[$i]}` = '$values[$i]' $and";
+        if ($keys[$i] == 'start' OR $keys[$i] == 'qua') {
+            $math_symbol = '>';
+        }
+        else {
+            if ($keys[$i] == 'stop' OR $keys[$i] == 'qua2') {
+                $math_symbol = '<';
+            }
+            else {
+                $math_symbol = '=';
+            }
+        }
+        $condition .= "`{$keys[$i]}` $math_symbol '$values[$i]' $and";
 
     }
 }
 else {
-    $condition = '`status` = 1';
+    $condition .= '`status` = 1';
 }
+
 
 
 /*Для скрытой формы, так как проблемы с экранированием символов*/
@@ -44,7 +65,6 @@ else {
 }
 
 //вычисляем GET
-$get = array_keys($_GET)[0];
 $single_table_name = array_keys($_GET)[0];
 
 $block = $DB->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$get'",'*');
@@ -96,9 +116,13 @@ foreach ($fields as $field) {
     //готовые заголовки для таблицы
     $headers[] = $field['descriptor_n'];
     $headers_db[] = $field['fn'];
+    //для определения того сколько селекторов дат надо вывести в интерфейс - ищем поля дат в БД
+    if ($DB->getDataTypes($get,$field['fn']) == 'date') {
+        $fls_date[] = $field['fn'];
+    }
 }
 //pre($headers_db,1);
-echo implode(',',$headers_db);
+
 $fields = $DB->getTableFieldsName($get);
 
 for ($i = 0; $i < count($fields); $i++) {
@@ -118,7 +142,7 @@ if ($ad = $_POST['selector'] != NULL) {
     $filter_year_text = 'AND `year` = '.$_POST['selector'];
 }
 
-$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'',implode(',',$headers_db),1);
+$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'',implode(',',$headers_db));
 
 $content = array_values($content);
 
@@ -147,62 +171,31 @@ $chekers .= $form_check->closeForm('Отчёт','success');*/
 
 //exit('1');
 $filter_date = new html_form();
-echo $get;
-$chekers = $filter_date->getDataFilter(array('_date1','_date2'),$single_table_name,array('Начало периода','Конец периода'));
 
 $m_up_right = [$chekers];
-
-
-/*for ($i = 0; $i < count($content); $i++) {
-    unset($content[$i][count($content[$i]) - 1]);
-    //отсекаем года для указанных таблиц
-    if ($table_name == 'Очная форма обучения' OR $table_name == 'Заочная форма обучения' OR $table_name == 'Иностранные слушатели') {
-        unset($content[$i][count($content[$i]) - 1]);
-    }
-//        unset($content[$i][count($content[$i]) - 1]);
-}*/
 
 $menu_html_up_left = $bootstrap->setListMenu($m_up_left);
 $menu_html_up_right = $bootstrap->setListMenu($m_up_right);
 $html_table = $table->printTableWithAction($table_name,$headers,$content);
 $menu_html = $bootstrap->setListMenu($menu_list);
-$html = [$menu_html_up_left,$menu_html_up_right];
+$html = [$menu_html_up_left];
 $html2 = [$html_table];
-echo $bootstrap->setContainer([6,6],$html);
+echo $bootstrap->setContainer([12],$html);
 
-
-if (!isset(array_keys($_GET)[1])) {
-    $get_param = 'Выберите календарный год';
-}
-else {
-    $get_param = array_values($_GET)[1];
-}
-
-if (!isset(array_keys($_GET)[2])) {
-    $get_param_vuz = 'Выберите учебное заведение';
-}
-else {
-    $get_param_vuz = array_values($_GET)[2];
-
-    $get_param_vuz_fullname = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$get_param_vuz'",'*');
-
-    foreach ($get_param_vuz_fullname as $get_param_vuz_fullname1) {
-        $name = $get_param_vuz_fullname1['fullname'];
-    }
-}
 
 
 //array ('year' => 1) - ключ означает имя гет параметра, 1 - порядок его появления в урл адресе. 0 не занимать, на месте 0 всегда имя таблицы БД для отрисовки интерфейса
 echo '<br>';
 echo '<br>';
-echo "<a href='$text/table.php?$get' style='text-align: center'><h5>Очистить фильтры</h5></a>";
+echo "<a href='$text/cms/table.php?$get' style='text-align: center'><h5>Очистить фильтры</h5></a>";
 echo '<br>';
 
 //получаем все данные для фильтров нужной таблицы
 $filters_data = (getFilters($get));
 //pre($filters_data);
+echo '<div style="width: 850px; height: 400px; margin: auto; background-color: #e5e5e5">';
 for ($i = 0; $i < count($filters_data); $i++) {
-        $select[] = $DB->getSelectorForDataBase(
+    $select[] = $DB->getSelectorForDataBase(
             $filters_data[$i]->db_table_name,
             $filters_data[$i]->db_table_fields,
             $filters_data[$i]->where,
@@ -211,23 +204,32 @@ for ($i = 0; $i < count($filters_data); $i++) {
             $filters_data[$i]->width,
             $filters_data[$i]->label
         );
-        $boot[] = $bootstrap->setContainer([12],$select);
-        unset($select);
+    $boot[] = $bootstrap->setContainer([12],$select);
+    unset($select);
 }
 
 for ($i = 0; $i < count($boot); $i++) {
     echo $boot[$i];
     echo '<br>';
 }
+$form = new html_form();
+if (count($fls_date) == 1) {
+    echo $form->GetDynamicalSelectorForDate('start',$get,'st','Начало периода');
+    echo '<br>';
+}
+else {
+    if (count($fls_date) == 2) {
+        echo $form->GetDynamicalSelectorForDate('start',$get,'st','Начало периода');
+        echo '<br>';
+        echo $form->GetDynamicalSelectorForDate('stop',$get,'st','Конец периода');
+    }
+}
+echo '</div>';
+echo '<br>';
+$html_table = new html_table();
+$spec = ['Год' => 'id','Владелец записи' => 'id'];
+$table =  $html_table->getContentForInterFace($get,$spec,$condition);
 
-
-
-$report_form = new html_form();
-$report =  $report_form->openForm("filter_report.php",'get');
-$report .= $report_form->hidden($condition1,'hid');
-$report .= $report_form->hidden($get,'hid_t_n');
-$report .= $report_form->closeForm('Скачать отчёт в Excel','btn btn-outline-success');
-
-echo $bootstrap->setContainer([12],[$report]);
-echo $bootstrap->setContainer([12],$html2);
+//echo $bootstrap->setContainer([12],[$report]);
+echo $bootstrap->setContainer([12],[$table]);
 

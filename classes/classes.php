@@ -3,6 +3,90 @@
 //Класс для работы с таблицей
 class html_table {
 
+    //метод собирает содержимое таблицы по её имени и выводит заданные спец. колонки
+    function getContentForInterFace($table_name,$spec_rows,$condition) {
+
+        //$spec_rows - Ключ - заголовок, значение - поле, которое надо вывести
+        $DB = new DB();
+        $user = new user();
+        $bootstrap = new Bootstrap();
+        $user->setUserData();
+        $spec_header = array_keys($spec_rows);
+        $spec_field_db = array_values($spec_rows);
+        $fields = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`get_name` = '$table_name'",'id,fn,descriptor_n');
+
+        while ($field = mysqli_fetch_assoc($fields)) {
+            $fs[] = $field['fn'];
+            $descriptor_ns[] = $field['descriptor_n'];
+        }
+
+        $f_string = implode(',',$fs);
+        $content = $DB->getRecordsForTableInterfaceArray($table_name,$condition,'',$f_string.',year');
+
+        /*Выбираем идентификаторы для присвоения авторства записи в интерфейсе*/
+        $ids = $DB->getRecordsForTableInterfaceArray($table_name,$condition,'','id');
+
+        for ($i = 0; $i < count($ids); $i++) {
+            $id[] = $ids[$i][0];
+        }
+        $table = '<table class="table table-bordered">';
+
+        //выводим заголовки таблицы
+        $table .= '<tr class="table-active text-center ">';
+        for ($i = 0; $i < count($descriptor_ns); $i++) {
+            $table .= '<td>';
+            $table .= $descriptor_ns[$i];
+            $table .= '</td>';
+        }
+
+        //выводим заголовки спец.колонок - для этого собираем ключи массива, переданного вторым параметром
+        for ($i = 0; $i < count($spec_header); $i++) {
+            $table .= '<td>';
+            $table .= $spec_header[$i];
+            $table .= '</td>';
+        }
+
+        $table .= '<td>';
+        $table .= 'Действия';
+        $table .= '</td>';
+        $table .= '</tr>';
+
+        $spec_val = array_values($spec_rows);
+        for ($i=0; $i < count($content); $i++) {
+            $table .= '<tr class="text-center">';
+            for ($g = 0; $g < count($content[$i]); $g++) {
+                $table .= '<td>';
+                $table .= $content[$i][$g];
+                $table .= '</td>';
+            }
+
+
+            $table .= '<td>';
+            $table .= $DB->getRecordAuthorFullName($table_name,$id[$i]);
+            $table .= '</td>';
+            //Если пользователь админ системы или администрация Губернатора или же если он автор записи, делаем доступным набор действий
+            if ($user->is_site_admin() OR $user->isGubernator() OR $DB->isRecordAuthor($table_name,$id[$i])) {
+                $red = '<a href="update.php?red='.$id[$i].'&table='.$table_name.'">Редактировать</a>';
+                $del = '<a href="delete.php?del='.$id[$i].'&table='.$table_name.'">Удалить</a>';
+//                $red = '<a href="update.php?red='.$id[$i].'&table='.$table_name.'"><svg style="color: #ff9e00" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>';
+//                $del = '<a href="delete.php?del='.$id[$i].'&table='.$table_name.'"><svg onclick="return confirm(`Подтвердите удаление записи`)" style="color: red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/></svg></a>';
+                $html = [$red,$del];
+            }
+            else {
+                $html = ['<p style="text-align: center; color: red">Недоступно</p>'];
+            }
+
+            $actions = $bootstrap->setContainer([6,6],$html,'fluid');
+            $table .= "<td>$actions</td>";
+            $table .= '</tr>';
+
+        }
+
+        return $table;
+
+
+    }
+
     function printTableWithAction($table_name_interface,$headers, $content) {
         include 'html/template.html';
         $bootstrap = new Bootstrap();
@@ -137,7 +221,7 @@ class DB {
             $this->db_production = 0;
             $this->db_host = 'localhost';
             $this->db_user = 'root';
-            $this->db_password = 'root';
+            $this->db_password = '';
             $this->db_base = 'administration2021';
             $this->db_production = 0;
         }
@@ -150,6 +234,30 @@ class DB {
             $this->db_base = 'administration2021';
             $this->db_production = 1;
         }
+    }
+
+    //метод собирает в массив названия всех стран
+    function getCountryList() {
+        $country_list = $this->getRecordsByConditionFetchAssoc('ref_country','','name,fullname');
+        while ($country_lis = mysqli_fetch_assoc($country_list)) {
+            $list[] = $country_lis['name'];
+            $list[] = $country_lis['fullname'];
+        }
+        return $list;
+    }
+    //Метод выводит полное имя автора записи по имени таблицы и идентификатору записи
+    function getRecordAuthorFullName($table_name,$record_id) {
+
+        $record_logs = $this->getRecordsByConditionFetchAssoc($table_name,"`id` = '$record_id'",'author');
+        while ($record_log = mysqli_fetch_assoc($record_logs)) {
+            $author = $record_log['author'];
+        }
+        $author = $this->getRecordsByConditionFetchAssoc('users',"`login` = '$author'",'fullname');
+        while ($autho = mysqli_fetch_assoc($author)) {
+            $auth = $autho['fullname'];
+
+        }
+        return $auth;
     }
 
 
@@ -167,73 +275,31 @@ class DB {
         return $type;
     }
 
-    //метод выводит динамический селеуктор, с данными из
-    // заданного поля заданной таблицы
-    // $fields - массив, 1 элемент - идентификатор (или параметр GET), 2 элемент - отбираемое поле
-//    function getSelectorForDataBase($table_name,$fields,$where,$header,$get_name) {
-//        //текущий урл
-//        $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-//
-//        //Ключ  значение массива, переданного в функцию
-//        $key = array_keys($get_name)[0];
-//        $value = array_values($get_name)[0];
-//        pre($key,1);
-//        pre($value,2);
-//
-//        //разбор урла на компоненты
-//        /*pre*/($parse_url =  parse_url($url));
-//
-//        $variable = "<form class='form-control' action='post'>";
-//            $variable .= "<select class='form-select' name='sel' onchange='document.location=this.options[this.selectedIndex].value'>";
-//                $variable .=  "<option value='#'>$header</option>";
-//                    $fields_string = implode(',',$fields);
-//                    $records = $this->getRecordsByConditionFetchAssoc($table_name,$where,$fields_string);
-//
-//                    ($parse_url_query = explode('&',$parse_url["query"]));
-//                    $t_n = $parse_url_query[0];
-//                    unset($parse_url_query[0]);
-//
-//                    //массив, где значения имеющиеся в урле гет параметры
-//                    /*pre*/($parse_url_query = array_values($parse_url_query));
-//
-//                    for ($i = 0; $i < count($parse_url_query); $i++) {
-//                        $key_val[] = explode('=',$parse_url_query[$i]);
-//                    }
-//
-//                    for ($i = 0; $i < count($key_val); $i++) {
-//                        for ($g = 0; $g < count($key_val[$i]); $g++) {
-//                            $url_array[$key_val[$i][0]] = $key_val[$i][1];
-//                        }
-//                    }
-//
-//                    $keys = array_keys($url_array);
-//                    $values = array_values($url_array);
-//                    /*pre*/($parse_url);
-//
-//                     $main_url = /*$parse_url['host'].*/$parse_url['path']."?$t_n";
-//
-//                    for ($i = 0; $i < count($url_array);$i++) {
-//                        $main_url .= "&{$keys[$i]}={$url_array[$keys[$i]]}";
-//                    }
-//                    echo $main_url;
-//                        foreach ($records as $record) {
-//                            //fields[1] - данные для списка
-//                            //fields[0] - сопоставленный идентификатор
-//                            if (isset($_POST['sel'])/* AND $_POST['sel'] == 1*/) {
-//                                $selector_status = 'selected';
-//                            }
-//                            else {
-//                                $selector_status = '';
-//                            }
-//                            $variable .=  "<option value='$main_url{$record[$fields[1]]}' $selector_status>{$record[$fields[1]]}</option>";
-//                }
-//            $variable .=  "</select>";
-//        $variable .=  "</form>";
-//        //http_redirect($main_url);
-//
-//        return $variable/*."$$main_url"*/;
-//    }
+    //метод определяет являетс ли текущий пользователь автором записи
+    function isRecordAuthor($table_name,$record_id) {
+        $user = new user();
+        $user->setUserData();
+        $flag = false;
+        $ids = $this->getRecordsByConditionFetchAssoc($table_name,"`id` = $record_id",'author');
+        while ($id = mysqli_fetch_assoc($ids)) {
+            $author = $id['author'];
+        }
+        if ($user->login == $author) {
+            $flag = true;
+        }
+        return $flag;
+    }
 
+
+    //метод возвращает наименование раздела, к которому относится таблица
+    function getBlockName($table) {
+
+        $block = $this->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$table'",'get');
+        while ($blocks = mysqli_fetch_assoc($block)) {
+            $block_name = $blocks['get'];
+        }
+        return $block_name;
+    }
 
     function getSelectorForDataBase($table_name,$fields,$where,$header,$get_name,$width=100,$label) {
         //текущий урл
@@ -253,9 +319,9 @@ class DB {
         //разбор урла на компоненты
         /*pre*/($parse_url =  parse_url($url));
         $width .= 'px';
-        $variable = "<form style='border: none; width: $width; margin: auto' class='form-control' action='post'>";
+//        $variable = "<form style='border: none; width: $width; margin: auto' class='form-control' action='post'>";
 //        $variable = "<label for='sel'>$label</label>";
-        $variable .= "<div style='text-align: center'>$label</div>";
+        $variable = "<div style='text-align: center'>$label</div>";
         $variable .= "<select id='sel' style='width: $width; margin: auto' class='form-select' name='sel' onchange='document.location=this.options[this.selectedIndex].value'>";
 //        $variable .= "<label class='form-label' for='sel'>$label</label>";
         $variable .=  "<option value='#'>$header</option>";
@@ -295,6 +361,10 @@ class DB {
         $variable .=  "</form>";
 
         return $variable;
+    }
+
+    function getDateFilterForm() {
+        echo $f = '<input class="form-control" value="#" type="date" name="start" onclick="document.location=this.options[this.selectedIndex].value">';
     }
 
     function table_list() {
@@ -363,51 +433,19 @@ class DB {
         if ($order!='') {
             $order_method = "ORDER BY $order";
         }
-        $records = $mysqli->query("SELECT $fieldss FROM $table $condition $order_method");
+        $records = $mysqli->query("SELECT $fieldss FROM `$table` $condition $order_method");
         if ($print != '') {
-            print_r("SELECT $fieldss FROM $table $condition $order_method");
+            pre("SELECT $fieldss FROM $table $condition $order_method","Текст запроса к таблице $table");
         }
         //создаём из записей обычный массив
-        foreach ($records as $records1) {
+        foreach ($records as $array) {
+
             for ($i = 0; $i < count($fields); $i++) {
-                // Когда пользователи импортируют данные по датам - формат ячейки равен "Дата".
-                // Когда PHP забирает данные из ячейки в Excel - данные забираются в текстовом формате. Пример:
-                // Как записано в Excel:  '23.08.2021'
-                // Как видит PHP: '44431'
-                // PHP преобразует дату в КОЛИЧЕСТВО ДНЕЙ С 1900 ГОДА
-                // Для решения проблемы проверяем, что если в базе хранится дата в таком виде (5 цифр) (по имени поля БД, таких всего несколько) и не содержит точек или тире (характерны для даты в корректном виде),
-                // то мы используем функцию GetDateByText, которую я написал для преобразования даты в людской вид
-                // P.S. Защита файлов импорта от изменения формата ячейки бесполезна, долбоёбы всё равно всё испортят. А также они вносят даты не по стандарту,
-                // могут быть значения из черии "бессррочно, 20 - 30.02.2020 и так далее"
-
-                if (
-                    //если данные читаем из полей, связанных с датами
-                       $fields[$i] == 'event_date'
-                    || $fields[$i] == 'event_start'
-                    || $fields[$i] == 'event_stop'
-                    || $fields[$i] == 'date_start'
-                    || $fields[$i] == 'actuality_date'
-                    || $fields[$i] == 'date'
-                    || $fields[$i] == 'event_date'
-                    || $fields[$i] == 'agr_date'
-                    || $fields[$i] == 'date_start'
-                    || $fields[$i] == 'date_stop'
-                    || $fields[$i] == 'actuality'
-                    //если в данных нет точек
-                    AND substr_count($records1[$fields[$i]],'.')==0
-                    //если в данных нет тире
-                    AND substr_count($records1[$fields[$i]],'-')==0) {
-
-                    $records1[$fields[$i]];
-                    $array[] =  GetDateByText($records1[$fields[$i]]);
-                }
-                else {
-                    $array[] = $records1[$fields[$i]];
-                }
-                if ($array[$i] == NULL AND $array[$i]!="") {
+                if ($array[$i] == NULL) {
                    unset($array[$i]);
                 }
             }
+
             $array_result[] = array_values($array);
             unset($array);
         }
@@ -448,26 +486,6 @@ class DB {
         $file->save('php://output');
     }
 
-    function getF() {
-        require_once 'Excel/Classes/PHPExcel.php';
-        require_once 'libs/lib.php';
-        $excel = PHPExcel_IOFactory::load('test.xlsx');
-        $excel->setActiveSheetIndex(0);
-        $form_code = $excel->getActiveSheet()->getStyle('A1')->getNumberFormat()->/*тип формата*/getFormatCode();
-        echo $value = $excel->getActiveSheet()->getCell('A1')->getValue();
-        echo '<br>';
-        if ($form_code == 'm/d/yyyy') {
-           echo GetDateByText($value);
-        }
-        else {
-           echo $form_code;
-        }
-    }
-
-
-
-
-
     // метод вставляет запись в таблицу.
     // Запись передаётся в виде объекта, где свойства - поля таблицы
     // Возвращает идентификатор вставленной записи
@@ -499,11 +517,11 @@ class DB {
         $string_for_insert .= ')';
         //считаем крайний ИД в таблице
 
-        $ins = $mysqli->query("INSERT INTO $table $string_fields VALUES $string_for_insert");
+        $ins = $mysqli->query("INSERT INTO `$table` $string_fields VALUES $string_for_insert");
         if (!$ins) {
             echo 'запись не вставлена';
             echo '<pre>';
-            echo("INSERT INTO $table $string_fields VALUES $string_for_insert;");
+            echo("INSERT INTO `$table` $string_fields VALUES $string_for_insert;");
             echo '</pre>';
         }
         if ($print!='') {
@@ -591,7 +609,6 @@ class DB {
 
 
 
-
     function getAllRoles() {
         $roles = $this->getRecordsByConditionFetchAssoc('roles');
         foreach ($roles as $role) {
@@ -605,25 +622,34 @@ class DB {
 class html_form {
 
 
-//    function GetDynamicalSelectorForDate($get_param_name,$table_name,$id,$label) {
-//
-//        $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-//        $form =  $this->hidden($url,'url',1);
-//        $form .=  $this->hidden($get_param_name,'get_name',1);
-//        $form .=  $this->hidden($table_name,'table_name',1);
-//        $form .=  $this->hidden($id,'ide',1);
-//
-//        return $form .= '<input type="date" id="'.$id.'" name="" onchange="window.location.replace(`${document.getElementById(`url`).value}&${document.getElementById(`get_name`).value}=${document.getElementDyId(${document.getElementById(`ide`).value})}`)">';
-//
-//        //http://cms/table.php?${document.getElementById(`table_name`).value}
-//        /*&${document.getElementById(`get_name`).value}=${document.getElementById(`date`).value}`)*/
-//    }
+    function GetDynamicalSelectorForDate($get_param_name,$table_name,$id,$label) {
+        $url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $form =  $this->hidden($url,'url');
+        if ($get_param_name == 'start') {
+            $form .=  $this->hidden($get_param_name,'get_name');
+        }
+        else {
+            $form .=  $this->hidden($get_param_name,'get_name2');
+        }
+        $form .=  $this->hidden($table_name,'table_name');
+        if ($get_param_name == 'start') {
+            $form .= "<div style='text-align: center'>$label</div>";
+            return $form .= '<input style="width: 200px; margin: auto" class="form-control" type="date" id="val" name="vale" onchange="window.location.replace(`${document.getElementById(`url`).value}&${document.getElementById(`get_name`).value}=${document.getElementById(`val`).value}`)">';
+        }
+        else {
+            $form .= "<div style='text-align: center'>$label</div>";
+            return $form .= '<input style="width: 200px; margin: auto" class="form-control" type="date" id="val1" name="vale1" onchange="window.location.replace(`${document.getElementById(`url`).value}&${document.getElementById(`get_name2`).value}=${document.getElementById(`val1`).value}`)">';
+        }
 
+        //http://cms/table.php?${document.getElementById(`table_name`).value}
+        /*&${document.getElementById(`get_name`).value}=${document.getElementById(`date`).value}`)*/
+    }
 
 
     function getDataFilter($id,$table_name,$label) {
-        pre($table_name,'гавно');
-        $form  = $this->openForm("table.php?$table_name",'get');
+
+        $form  = $this->openForm("table.php?$table_name",'post');
+        $form .= $this->hidden($table_name,'get_d');
         $form .= $this->getFormByType('date',$id[0],$label[0],200);
         $form .= $this->getFormByType('date',$id[1],$label[1],200);
         $form .= $this->closeForm('Выбрать','btn btn-outline-warning');
@@ -795,7 +821,8 @@ class user {
     function authUser($login,$password) {
         $DB = new DB;
         $DB->setConnect();
-        $password = md5($password);
+
+//        $password = md5($password);
 
         $users = $DB->getRecordsByConditionFetchAssoc('users',"`login` = '$login' AND `password` = '$password' AND `ban` = 0",'*');
 //        if (count(mysqli_fetch_assoc($users)) > 0) {
@@ -847,7 +874,7 @@ class Bootstrap {
         echo '
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
               <div class="container-fluid">
-                <a class="navbar-brand" href="#">ЭМОУ</a>
+                <a class="navbar-brand" href="#">Мониторинг деятельности по международному сотрудничеству</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                   <span class="navbar-toggler-icon"></span>
                 </button>

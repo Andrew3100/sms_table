@@ -30,7 +30,7 @@ for ($i = 0; $i < count($fieldss); $i++) {
     }
 }
 //заменить на имя куков
-$obj->author    = $user->name;
+$obj->author    = $user->login;
 $obj->status    = 1;
 $DB->insert_record($table,$obj);
 $log->fixed($user->name,"Вставка записи в таблицу $table");

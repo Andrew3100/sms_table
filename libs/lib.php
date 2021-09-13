@@ -3,7 +3,6 @@
 require_once 'classes/classes.php';
 $user = new user();
 $user->setUserData();
-
 //отладка
 debug();
 //авторизация
@@ -16,7 +15,7 @@ function is_auth() {
 }
 
 is_auth();
-debug();
+
 function getContentByMenu() {
     if ($_GET['data']==1) {
         $content = 'data.php';
@@ -117,11 +116,12 @@ function getFilters($get_name) {
      *
      * */
 
+    $DB = new DB();
+    $block = $DB->getBlockName($get_name);
 
+    switch ($block) {
 
-    switch ($get_name) {
-
-        case 'och':
+        case 'education':
             //селектор для учебного года
             $object0 = new stdClass();
             $object0->db_table_name = 'years';
@@ -143,10 +143,38 @@ function getFilters($get_name) {
             $object1->label = 'Учебное заведение';
             $obj[] = $object0;
             $obj[] = $object1;
+
+            switch ($get_name) {
+                case 'aus':
+                    //селектор для фильтра количества студентов "Более"
+                    $object2 = new stdClass();
+                    $object2->db_table_name = 'quated';
+                    $object2->db_table_fields = ['qua','qua'];
+                    $object2->where = '';
+                    $object2->header = 'Больше';
+                    $object2->get_name = 'qua';
+                    $object2->width = 150;
+                    $object2->label = 'Кол-во студентов больше ...';
+                    $obj[] = $object2;
+                    
+                    //селектор для фильтра количества студентов "Более"
+                    $object3 = new stdClass();
+                    $object3->db_table_name = 'quated';
+                    $object3->db_table_fields = ['qua','qua'];
+                    $object3->where = '';
+                    $object3->header = 'Меньше';
+                    $object3->get_name = 'qua2';
+                    $object3->width = 150;
+                    $object3->label = 'Кол-во студентов меньше ...';
+                    $obj[] = $object3;
+                    
+                    
+            }
+
             break;
 
 
-        case 'zaoch':
+        /*case 'zaoch':
 
             //селектор для учебного года
             $object2 = new stdClass();
@@ -219,7 +247,7 @@ function getFilters($get_name) {
             $object7->label = 'Учебное заведение';
             $obj[] = $object6;
             $obj[] = $object7;
-            break;
+            break;*/
 
 
 
