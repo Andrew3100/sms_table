@@ -385,6 +385,12 @@ class DB {
         return $mysqli;
     }
 
+    function alterTable($table_name, $field, $type) {
+        $mysqli = $this->setConnect();
+        pre("ALTER TABLE `$table_name` ADD `$field` $type NOT NULL");
+        return $mysqli->query("ALTER TABLE `$table_name` ADD `$field` $type NOT NULL");
+    }
+
     //метод возврашает ассоциативный массив
     //данных из заданной таблицы.
     //Можно передать условие отбора записей и отбираемые поля в строке через запятую

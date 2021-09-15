@@ -7,6 +7,10 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+//Запрос на отбор таблиц с кол-вом участников
+/*$updates = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`descriptor_n` LIKE 'Количество%'",'fn,get_name,descriptor_n',1);*/
+
+
 $up = $DB->getRecordsByConditionFetchAssoc('aus','','id,qua');
 
 
@@ -193,7 +197,6 @@ echo '<br>';
 //получаем все данные для фильтров нужной таблицы
 $filters_data = (getFilters($get));
 //pre($filters_data);
-echo '<div style="width: 850px; height: 400px; margin: auto; background-color: #e5e5e5">';
 for ($i = 0; $i < count($filters_data); $i++) {
     $select[] = $DB->getSelectorForDataBase(
             $filters_data[$i]->db_table_name,
@@ -224,12 +227,11 @@ else {
         echo $form->GetDynamicalSelectorForDate('stop',$get,'st','Конец периода');
     }
 }
-echo '</div>';
+
 echo '<br>';
 $html_table = new html_table();
 $spec = ['Год' => 'id','Владелец записи' => 'id'];
 $table =  $html_table->getContentForInterFace($get,$spec,$condition);
-
 //echo $bootstrap->setContainer([12],[$report]);
 echo $bootstrap->setContainer([12],[$table]);
 

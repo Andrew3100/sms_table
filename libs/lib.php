@@ -118,10 +118,14 @@ function getFilters($get_name) {
 
     $DB = new DB();
     $block = $DB->getBlockName($get_name);
-
+    $ts = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`descriptor_n` LIKE 'Количество%'",'fn,get_name,descriptor_n');
+    while($tss = mysqli_fetch_assoc($ts)) {
+        $t[] = $tss['get_name'];
+    }
     switch ($block) {
 
         case 'education':
+
             //селектор для учебного года
             $object0 = new stdClass();
             $object0->db_table_name = 'years';
@@ -145,7 +149,7 @@ function getFilters($get_name) {
             $obj[] = $object1;
 
             switch ($get_name) {
-                case 'aus':
+                case in_array($get_name,$t):
                     //селектор для фильтра количества студентов "Более"
                     $object2 = new stdClass();
                     $object2->db_table_name = 'quated';
@@ -153,8 +157,8 @@ function getFilters($get_name) {
                     $object2->where = '';
                     $object2->header = 'Больше';
                     $object2->get_name = 'qua';
-                    $object2->width = 150;
-                    $object2->label = 'Кол-во студентов больше ...';
+                    $object2->width = 300;
+                    $object2->label = 'Кол-во больше';
                     $obj[] = $object2;
                     
                     //селектор для фильтра количества студентов "Более"
@@ -164,8 +168,8 @@ function getFilters($get_name) {
                     $object3->where = '';
                     $object3->header = 'Меньше';
                     $object3->get_name = 'qua2';
-                    $object3->width = 150;
-                    $object3->label = 'Кол-во студентов меньше ...';
+                    $object3->width = 300;
+                    $object3->label = 'Кол-во меньше';
                     $obj[] = $object3;
                     
                     
