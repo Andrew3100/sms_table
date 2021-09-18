@@ -114,7 +114,7 @@ if ($user->is_site_admin()) {
 }
 
 $menu_list[] = '<a href="exit.php">Выйти из системы</a>';
-$fields = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`get_name` = '$get'");
+$fields = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`get_name` = '$get'",'*');
 
 foreach ($fields as $field) {
     //готовые заголовки для таблицы
@@ -122,7 +122,7 @@ foreach ($fields as $field) {
     $headers_db[] = $field['fn'];
     //для определения того сколько селекторов дат надо вывести в интерфейс - ищем поля дат в БД
     if ($DB->getDataTypes($get,$field['fn']) == 'date') {
-        $fls_date[] = $field['fn'];
+         $fls_date[] = $field['fn'];
     }
 }
 //pre($headers_db,1);
@@ -216,6 +216,7 @@ for ($i = 0; $i < count($boot); $i++) {
     echo '<br>';
 }
 $form = new html_form();
+
 if (count($fls_date) == 1) {
     echo $form->GetDynamicalSelectorForDate('start',$get,'st','Начало периода');
     echo '<br>';

@@ -124,7 +124,7 @@ function getFilters($get_name) {
     }
     switch ($block) {
 
-        case 'education':
+        case true:
 
             //селектор для учебного года
             $object0 = new stdClass();
