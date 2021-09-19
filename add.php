@@ -58,26 +58,27 @@ $assoc = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`get_name` = '$ta
 
 
 echo $form->openForm("add_script.php?$table",'post');
-echo '<div style="position: absolute; left: 50%; top: 50%;-webkit-transform: translate(-50%, -50%);-moz-transform: translate(-50%, -50%);-ms-transform: translate(-50%, -50%);-o-transform: translate(-50%, -50%);transform: translate(-50%, -50%);>';
+//echo '<div style="position: absolute; left: 50%; top: 50%;-webkit-transform: translate(-50%, -50%);-moz-transform: translate(-50%, -50%);-ms-transform: translate(-50%, -50%);-o-transform: translate(-50%, -50%);transform: translate(-50%, -50%);>';
 $i = 0;
 
 foreach ($assoc as $arr) {
     $fetch[] = $arr['type_name'];
     $fetch1[] = $arr['descriptor_n'];
     if ($fetch1[$i] == 'Страна' OR $fetch1[$i] == 'Страна прибытия') {
-        echo '<div class="ui-widget">
+        echo '<div class="ui-widget" style="width: 500px;">
                 <label for="tags" class="form-label">Страна</label>
                 <input id="tags" name="'.$i.'" class="form-control">
               </div>';
+       // echo $form->getFormByType($fetch[$i],$i,$fetch1[$i],500);
     }
-    else {
+else {
         echo $form->getFormByType($fetch[$i],$i,$fetch1[$i],500);
     }
     $i++;
 }
 echo '<br>';
 echo $form->closeForm('Добавить','success');
-echo '</div>';
+//echo '</div>';
 ?>
 </body>
 </html>

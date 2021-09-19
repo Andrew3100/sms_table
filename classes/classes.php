@@ -740,6 +740,18 @@ class html_form {
         return $f .= "<input name='name$id' type='$type' value='$value' class='form-control' id='$id' style='width: $width;'>";
     }
 
+    function getFormCountrySearch($type,$id,$label='',$width=600,$value='') {
+
+        $width .= 'px';
+        $f = '';
+
+        if ($label!='') {
+            $f .= "<label for='$id' class='form-label'>$label</label>";
+        }
+        return $f .= "<div class='ui-widget'><input name='name$id' type='$type' value='$value' class='form-control' id='$id' style='width: $width;'></div>";
+    }
+
+
     function getCheckBox($id,$label='',$value,$status='checked') {
         include 'html/template.html';
         if ($status != 'checked') {

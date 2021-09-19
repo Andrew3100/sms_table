@@ -4,7 +4,7 @@ require_once 'classes/classes.php';
 $user = new user();
 $user->setUserData();
 //отладка
-debug();
+//debug();
 //авторизация
 is_auth();
 
