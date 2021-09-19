@@ -12,11 +12,7 @@ require_once 'html/template.html';
 
 
 $up = $DB->getRecordsByConditionFetchAssoc('aus','','id,qua');
-
-
-
 $get = array_keys($_GET)[0];
-
 
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
 ($filters = parseGetData());
@@ -191,7 +187,7 @@ echo $bootstrap->setContainer([12],$html);
 //array ('year' => 1) - ключ означает имя гет параметра, 1 - порядок его появления в урл адресе. 0 не занимать, на месте 0 всегда имя таблицы БД для отрисовки интерфейса
 echo '<br>';
 echo '<br>';
-echo "<a href='$text/cms/table.php?$get' style='text-align: center'><h5>Очистить фильтры</h5></a>";
+echo "<a href='$text/table.php?$get' style='text-align: center'><h5>Очистить фильтры</h5></a>";
 echo '<br>';
 
 //получаем все данные для фильтров нужной таблицы

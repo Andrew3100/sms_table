@@ -66,8 +66,8 @@ class html_table {
             $table .= '</td>';
             //Если пользователь админ системы или администрация Губернатора или же если он автор записи, делаем доступным набор действий
             if ($user->is_site_admin() OR $user->isGubernator() OR $DB->isRecordAuthor($table_name,$id[$i])) {
-                $red = '<a href="update.php?red='.$id[$i].'&table='.$table_name.'">Редактировать</a>';
-                $del = '<a href="delete.php?del='.$id[$i].'&table='.$table_name.'">Удалить</a>';
+                $red = '<a href="update.php?red='.$id[$i].'&table='.$table_name.'"><img src="/actions_img/red.png" style="width: 25px; height: 25px; margin-top: 10px;"></a>';
+                $del = '<a href="delete.php?del='.$id[$i].'&table='.$table_name.'"><img src="/actions_img/del.png" onclick="return confirm(`Подтвердите удаление записи`)" style="width: 25px; height: 25px; margin-top: 10px;"></a>';
 //                $red = '<a href="update.php?red='.$id[$i].'&table='.$table_name.'"><svg style="color: #ff9e00" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>';
 //                $del = '<a href="delete.php?del='.$id[$i].'&table='.$table_name.'"><svg onclick="return confirm(`Подтвердите удаление записи`)" style="color: red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/></svg></a>';
                 $html = [$red,$del];
@@ -219,10 +219,10 @@ class DB {
     function db_param() {
         if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
             $this->db_production = 0;
-            $this->db_host = '172.32.2.12';
-            $this->db_user = 'dev';
-            $this->db_password = '123456';
-            $this->db_base = 'object_adm';
+            $this->db_host = 'localhost';
+            $this->db_user = 'root';
+            $this->db_password = 'root';
+            $this->db_base = 'administration2021';
             $this->db_production = 0;
         }
         else {
@@ -295,7 +295,7 @@ class DB {
     //метод возвращает наименование раздела, к которому относится таблица
     function getBlockName($table) {
 
-        $block = $this->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$table'",'get');
+        $block = $this->getRecordsByConditionFetchAssoc('administration_table_link',"`link_get` = '$table'",'`get`');
         while ($blocks = mysqli_fetch_assoc($block)) {
             $block_name = $blocks['get'];
         }
@@ -730,7 +730,7 @@ class html_form {
     //Можно передать текст Bootstrap-метки для поля ввода. Если не передать, будет просто поле ввода
     //Можно указать ширину, если не указать, дефолт 600пкс
     function getFormByType($type,$id,$label='',$width=600,$value='') {
-        include 'html/template.html';
+
         $width .= 'px';
         $f = '';
 
