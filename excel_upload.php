@@ -103,8 +103,9 @@ while ($value = $excel->getActiveSheet()->getCell('A'.$i)->getValue()!="") {
 }
 
 //лог
+$user = new user();
+$user->setUserData();
 $log = new log();
-$log->fixed($use->name,'Импорт данных из файла Excel');
-exit();
+$log->fixed($user->login,"Импорт данных в таблицу $table_name");
 echo '<script>alert(`Файл загружен. Порсле нажатия кнопки ОК загрузится обновлённая таблица`)</script>';
 echo "<script>window.location.replace('/cms/table.php?$table_name');</script>";

@@ -141,8 +141,11 @@ $filter_year_text='';
 if ($ad = $_POST['selector'] != NULL) {
     $filter_year_text = 'AND `year` = '.$_POST['selector'];
 }
+$impl = implode(',',$headers_db);
+$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'',$impl);
 
-$content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'',implode(',',$headers_db));
+
+
 
 $content = array_values($content);
 
@@ -225,6 +228,18 @@ else {
     }
 }
 
+echo '<br>';
+echo '<div class="container">';
+echo '<div class="row">';
+echo '<div class="col text-center">';
+$hidden_query = new html_form();
+echo $hidden_query->openForm("excel_filter.php?$get",'post');
+$c = str_replace("'",'(',$condition);
+echo $hidden_query->hidden("$impl,,,,,$c",'query');
+echo $hidden_query->closeForm('Отчёт по фильтрам','warning');
+echo '</div>';
+echo '</div>';
+echo '</div>';
 echo '<br>';
 $html_table = new html_table();
 $spec = ['Год' => 'id','Владелец записи' => 'id'];

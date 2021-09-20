@@ -1,20 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <?php
 require_once 'libs/html_elements_lib.php';
 require_once 'libs/lib.php';
@@ -36,6 +19,7 @@ for ($i = 0; $i < count($fields); $i++) {
 }
 
 $obj = new stdClass();
+
 for ($i = 0; $i < count($fieldss); $i++) {
     if (date_parse($_POST['name'.$i])['year'] != false) {
         //преобразование даты
@@ -46,9 +30,9 @@ for ($i = 0; $i < count($fieldss); $i++) {
         $obj->{$fieldss[$i]} = $_POST['name'.$i];
     }
 }
-//заменить на имя куков
 $obj->author    = $user->login;
 $obj->status    = 1;
-$DB->insert_record($table,$obj);
-$log->fixed($user->name,"Вставка записи в таблицу $table");
+$obj->year      = getYear();
+$DB->insert_record($table,$obj,1);
+$log->fixed($user->login,"Вставка записи в таблицу $table");
 echo "<script>window.location.replace('table.php?$table')</script>";

@@ -4,7 +4,7 @@ require_once 'classes/classes.php';
 $user = new user();
 $user->setUserData();
 //отладка
-//debug();
+debug();
 //авторизация
 is_auth();
 
@@ -15,6 +15,11 @@ function is_auth() {
 }
 
 is_auth();
+
+function getYear() {
+    return date('Y',time());
+}
+
 
 function getContentByMenu() {
     if ($_GET['data']==1) {
