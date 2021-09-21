@@ -21,18 +21,20 @@ for ($i = 0; $i < count($fields); $i++) {
 $obj = new stdClass();
 
 for ($i = 0; $i < count($fieldss); $i++) {
-    if (date_parse($_POST['name'.$i])['year'] != false) {
+    /*if (date_parse($_POST['name'.$i])['year'] != false) {
+        echo 'Преобразовал дату в поле '.$_POST['name'.$i];
         //преобразование даты
         $date = new \DateTime("{$_POST['name'.$i]}");
         $obj->{$fieldss[$i]} = $date->format('d.m.Y');
-    }
-    else {
+    }*/
+//    else {
         $obj->{$fieldss[$i]} = $_POST['name'.$i];
-    }
+//    }
 }
 $obj->author    = $user->login;
 $obj->status    = 1;
 $obj->year      = getYear();
 $DB->insert_record($table,$obj,1);
 $log->fixed($user->login,"Вставка записи в таблицу $table");
+
 echo "<script>window.location.replace('table.php?$table')</script>";

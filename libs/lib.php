@@ -114,6 +114,7 @@ function getFilters($get_name) {
      * get_name         - Имя GET-Параметра !!!ДОЛЖНО СОВПАДАТЬ С ПОЛЕМ ТАБЛИЦЫ БАЗЫ ДАННЫХ, КОТОРОЕ МЫ ХОТИМ ИЗВЛЕЧЬ ДЛЯ ФИЛЬТРАЦИИ ДАННЫХ!!!
      * width            - Ширина селектора (CSS)
      * label            - Название (Выводится в центре над селектором)
+     * gr_by            - Поле, по которому надо группировать
      *
 
      * !!!Созданные объекты обязательно записать в массив!!!
@@ -127,141 +128,222 @@ function getFilters($get_name) {
     while($tss = mysqli_fetch_assoc($ts)) {
         $t[] = $tss['get_name'];
     }
+
+    $tableClass = $DB->getTableClass($get_name);
+
+    //Селектор для календарного года. Доступен всем таблицам
+    $year_selector = new stdClass();
+    $year_selector->db_table_name = 'years';
+    $year_selector->db_table_fields = ['year_calendar','year_calendar'];
+    $year_selector->where = '';
+    $year_selector->header = 'Год';
+    $year_selector->get_name = 'year';
+    $year_selector->width = 300;
+    $year_selector->label = 'Год';
+    $obj[] = $year_selector;
+
+    //селекторы для классов таблицы
+    switch ($tableClass) {
+        //для таблицы с классом "Мероприятия" обязательный селектор с наименованием мероприятия, статуса, и места проведения
+        case 'event':
+            //селектор для наименования мероприятия
+            $event_name_selector = new stdClass();
+            $event_name_selector->db_table_name = $get_name;
+            $event_name_selector->db_table_fields = ['event_name','event_name'];
+            $event_name_selector->where = '';
+            $event_name_selector->header = 'Наименование мероприятия';
+            $event_name_selector->get_name = 'event_name';
+            $event_name_selector->width = 300;
+            $event_name_selector->label = 'Наименование мероприятия';
+            $obj[] = $event_name_selector;
+
+            //селектор статуса мероприятия
+            $event_status_selector = new stdClass();
+            $event_status_selector->db_table_name = 'ref_event_status';
+            $event_status_selector->db_table_fields = ['name','name'];
+            $event_status_selector->where = '';
+            $event_status_selector->header = 'Статус мероприятия';
+            $event_status_selector->get_name = 'status';
+            $event_status_selector->width = 300;
+            $event_status_selector->label = 'Статус мероприятия';
+            $obj[] = $event_status_selector;
+
+
+            //селектор места проведения
+            $event_location_selector = new stdClass();
+            $event_location_selector->db_table_name = $get_name;
+            $event_location_selector->db_table_fields = ['event_location','event_location'];
+            $event_location_selector->where = '';
+            $event_location_selector->header = 'Место проведения мероприятия';
+            $event_location_selector->get_name = 'event_location';
+            $event_location_selector->width = 300;
+            $event_location_selector->label = 'Место проведения мероприятия';
+            $obj[] = $event_location_selector;
+            break;
+
+        case 'statistic':
+            //селектор места проведения
+            $country = new stdClass();
+            $country->db_table_name = $get_name;
+            $country->db_table_fields = ['country','country'];
+            $country->where = '';
+            $country->header = 'Страна';
+            $country->get_name = 'country';
+            $country->width = 300;
+            $country->label = 'Страна';
+            $country->gr_by = 'country';
+            $obj[] = $country;
+            break;
+
+    }
+
+
     switch ($block) {
 
-        case true:
-
-            //селектор для учебного года
-            $object0 = new stdClass();
-            $object0->db_table_name = 'years';
-            $object0->db_table_fields = ['year_calendar','year_calendar'];
-            $object0->where = '';
-            $object0->header = 'Учебный год';
-            $object0->get_name = 'year';
-            $object0->width = 500;
-            $object0->label = 'Учебный год';
-
+        case 'education':
             //селектор для учебного заведения
-            $object1 = new stdClass();
-            $object1->db_table_name = 'users';
-            $object1->db_table_fields = ['login','fullname'];
-            $object1->where = '`is_science` = 1';
-            $object1->header = 'Учебное заведение';
-            $object1->get_name = 'author';
-            $object1->width = 800;
-            $object1->label = 'Учебное заведение';
-            $obj[] = $object0;
-            $obj[] = $object1;
-
-            switch ($get_name) {
-                case in_array($get_name,$t):
-                    //селектор для фильтра количества студентов "Более"
-                    $object2 = new stdClass();
-                    $object2->db_table_name = 'quated';
-                    $object2->db_table_fields = ['qua','qua'];
-                    $object2->where = '';
-                    $object2->header = 'Больше';
-                    $object2->get_name = 'qua';
-                    $object2->width = 300;
-                    $object2->label = 'Кол-во больше';
-                    $obj[] = $object2;
-                    
-                    //селектор для фильтра количества студентов "Более"
-                    $object3 = new stdClass();
-                    $object3->db_table_name = 'quated';
-                    $object3->db_table_fields = ['qua','qua'];
-                    $object3->where = '';
-                    $object3->header = 'Меньше';
-                    $object3->get_name = 'qua2';
-                    $object3->width = 300;
-                    $object3->label = 'Кол-во меньше';
-                    $obj[] = $object3;
-                    
-                    
-            }
-
+            $university = new stdClass();
+            $university->db_table_name = 'users';
+            $university->db_table_fields = ['login','fullname'];
+            $university->where = '`is_science` = 1';
+            $university->header = 'Учебное заведение';
+            $university->get_name = 'author';
+            $university->width = 500;
+            $university->label = 'Учебное заведение';
+            $obj[] = $university;
             break;
 
 
-        /*case 'zaoch':
+        case 'culture':
 
-            //селектор для учебного года
-            $object2 = new stdClass();
-            $object2->db_table_name = 'years';
-            $object2->db_table_fields = ['year_calendar','year_calendar'];
-            $object2->where = '';
-            $object2->header = 'Учебный год';
-            $object2->get_name = 'year';
-            $object2->width = 500;
-            $object2->label = 'Учебный год';
+            //селектор для фильтра количества участников "Более"
+            $big = new stdClass();
+            $big->db_table_name = 'quated';
+            $big->db_table_fields = ['qua','qua'];
+            $big->where = '';
+            $big->header = 'Больше';
+            $big->get_name = 'qua';
+            $big->width = 300;
+            $big->label = 'Кол-во участников больше';
+            $obj[] = $big;
 
-            //селектор для учебного заведения
-            $object3 = new stdClass();
-            $object3->db_table_name = 'users';
-            $object3->db_table_fields = ['login','fullname'];
-            $object3->where = '`is_science` = 1';
-            $object3->header = 'Учебное заведение';
-            $object3->get_name = 'author';
-            $object3->width = 800;
-            $object3->label = 'Учебное заведение';
-            $obj[] = $object2;
-            $obj[] = $object3;
+            //селектор для фильтра количества участников "Более"
+            $small = new stdClass();
+            $small->db_table_name = 'quated';
+            $small->db_table_fields = ['qua','qua'];
+            $small->where = '';
+            $small->header = 'Меньше';
+            $small->get_name = 'qua2';
+            $small->width = 300;
+            $small->label = 'Кол-во участников меньше';
+            $obj[] = $small;
             break;
 
-        case 'aus':
+    }
 
-            //селектор для учебного года
-            $object4 = new stdClass();
-            $object4->db_table_name = 'years';
-            $object4->db_table_fields = ['year_calendar','year_calendar'];
-            $object4->where = '';
-            $object4->header = 'Учебный год';
-            $object4->get_name = 'year';
-            $object4->width = 500;
-            $object4->label = 'Учебный год';
+    switch ($get_name) {
+        //Если текущая таблица в списке таблиц с количественными данными
+        case in_array($get_name, $t):
+            //селектор для фильтра количества студентов "Более"
+            $date_start = new stdClass();
+            $date_start->db_table_name = 'quated';
+            $date_start->db_table_fields = ['qua', 'qua'];
+            $date_start->where = '';
+            $date_start->header = 'Больше';
+            $date_start->get_name = 'qua';
+            $date_start->width = 300;
+            $date_start->label = 'Кол-во больше';
+            $obj[] = $date_start;
 
-            //селектор для учебного заведения
-            $object5 = new stdClass();
-            $object5->db_table_name = 'users';
-            $object5->db_table_fields = ['login','fullname'];
-            $object5->where = '`is_science` = 1';
-            $object5->header = 'Учебное заведение';
-            $object5->get_name = 'vuz';
-            $object5->width = 800;
-            $object5->label = 'Учебное заведение';
-            $obj[] = $object4;
-            $obj[] = $object5;
+
+            //селектор для фильтра количества студентов "Более"
+            $date_stop = new stdClass();
+            $date_stop->db_table_name = 'quated';
+            $date_stop->db_table_fields = ['qua', 'qua'];
+            $date_stop->where = '';
+            $date_stop->header = 'Меньше';
+            $date_stop->get_name = 'qua2';
+            $date_stop->width = 300;
+            $date_stop->label = 'Кол-во меньше';
+            $obj[] = $date_stop;
+            break;
+    }
+
+    switch ($get_name) {
+        case 'change':
+            //селектор для фильтра количества студентов "Более"
+            $university_by_change = new stdClass();
+            $university_by_change->db_table_name = 'change';
+            $university_by_change->db_table_fields = ['company','company'];
+            $university_by_change->where = '';
+            $university_by_change->header = 'Организация для обмена';
+            $university_by_change->get_name = 'company';
+            $university_by_change->width = 300;
+            $university_by_change->label = 'Организация для обмена';
+            $university_by_change->gr_by = 'company';
+            $obj[] = $university_by_change;
             break;
 
-        case 'international':
 
-            //селектор для учебного года
-            $object6 = new stdClass();
-            $object6->db_table_name = 'years';
-            $object6->db_table_fields = ['year_calendar','year_calendar'];
-            $object6->where = '';
-            $object6->header = 'Учебный год';
-            $object6->get_name = 'year';
-            $object6->width = 500;
-            $object6->label = 'Учебный год';
+        case 'cult_doc':
+            //селектор для фильтра количества студентов "Более"
+            $culture_doc_organization = new stdClass();
+            $culture_doc_organization->db_table_name = 'cult_doc';
+            $culture_doc_organization->db_table_fields = ['country','country'];
+            $culture_doc_organization->where = '';
+            $culture_doc_organization->header = 'Страна';
+            $culture_doc_organization->get_name = 'country';
+            $culture_doc_organization->width = 300;
+            $culture_doc_organization->label = 'Страна';
+            $culture_doc_organization->gr_by = 'country';
+            $obj[] = $culture_doc_organization;
+            break;
 
-            //селектор для учебного заведения
-            $object7 = new stdClass();
-            $object7->db_table_name = 'users';
-            $object7->db_table_fields = ['login','fullname'];
-            $object7->where = '`is_science` = 1';
-            $object7->header = 'Учебное заведение';
-            $object7->get_name = 'vuz';
-            $object7->width = 800;
-            $object7->label = 'Учебное заведение';
-            $obj[] = $object6;
-            $obj[] = $object7;
-            break;*/
+
+        case 'work':
+            //выборки для муниципального округа, гражданской принадлежности, сферы деятельности
+            $work_munic_round = new stdClass();
+            $work_munic_round->db_table_name = 'work';
+            $work_munic_round->db_table_fields = ['munic_round','munic_round'];
+            $work_munic_round->where = '';
+            $work_munic_round->header = 'Муниципальный округ';
+            $work_munic_round->get_name = 'munic_round';
+            $work_munic_round->width = 300;
+            $work_munic_round->label = 'Муниципальный округ';
+            $work_munic_round->gr_by = 'munic_round';
+            $obj[] = $work_munic_round;
+
+            //выборки для муниципального округа, гражданской принадлежности, сферы деятельности
+            $work_grazdanstvo = new stdClass();
+            $work_grazdanstvo->db_table_name = 'work';
+            $work_grazdanstvo->db_table_fields = ['grazhdanstvo','grazhdanstvo'];
+            $work_grazdanstvo->where = '';
+            $work_grazdanstvo->header = 'Гражданская принадлежность';
+            $work_grazdanstvo->get_name = 'grazhdanstvo';
+            $work_grazdanstvo->width = 300;
+            $work_grazdanstvo->label = 'Гражданская принадлежность';
+            $work_grazdanstvo->gr_by = 'grazhdanstvo';
+            $obj[] = $work_grazdanstvo;
+
+            //выборки для муниципального округа, гражданской принадлежности, сферы деятельности
+            $work_sphera_d = new stdClass();
+            $work_sphera_d->db_table_name = 'work';
+            $work_sphera_d->db_table_fields = ['sphera_d','sphera_d'];
+            $work_sphera_d->where = '';
+            $work_sphera_d->header = 'Сфера деятельности';
+            $work_sphera_d->get_name = 'sphera_d';
+            $work_sphera_d->width = 300;
+            $work_sphera_d->label = 'Сфера деятельности';
+            $work_sphera_d->gr_by = 'sphera_d';
+            $obj[] = $work_sphera_d;
+            break;
+
 
 
 
 
     }
+
     return $obj;
 }
 
@@ -286,9 +368,7 @@ function parseGetData() {
         $values[] = array_values($obj[$i])[0];
     }
 
-
-//Были получены значения контрольных элементов массива
-//pre($parameters,исх);
+    //pre($parameters,исх);
     for ($i = 0; $i < count($parameters); $i++) {
         $fixed = $parameters[$i];
         //echo 'Зафиксировал значение '.$fixed.'<br>';

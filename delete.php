@@ -9,6 +9,11 @@ $id    = $_GET['del'];
 $table = $_GET['table'];
 $u = new stdClass();
 $u->status = 0;
-if ($DB->update_recordById($table,$u,$id)) {
+if ($DB->update_recordById($table,$u,$id,2))
+{
     echo "<script>window.location.replace('table.php?$table')</script>";
 }
+else {
+    echo 'Произошла ошибка при удалении записи';
+}
+

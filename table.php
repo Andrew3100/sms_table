@@ -7,11 +7,22 @@ require_once 'db/db_config.php';
 global $DB;
 require_once 'html/template.html';
 
+
+
+$user = new user;
+$user->setUserData();
+if (!$user->is_site_admin()) {
+    exit('Раздел работы с таблицей находится на техническом обслуживании');
+}
+
+
 //Запрос на отбор таблиц с кол-вом участников
 /*$updates = $DB->getRecordsByConditionFetchAssoc('bsu_form_data',"`descriptor_n` LIKE 'Количество%'",'fn,get_name,descriptor_n',1);*/
 
+//echo urldecode('%80%D0%BE%D0%BF%D1%80%D0%B8%D1%8F%D1%82%D0%B8%D0%B5');
 
 $up = $DB->getRecordsByConditionFetchAssoc('aus','','id,qua');
+
 $get = array_keys($_GET)[0];
 
 //получаем массив, в котором храним уловие отбора данных. Ключ = поле БД, значение - соотв.
@@ -43,7 +54,8 @@ if ((count($keys)) > 0) {
                 $math_symbol = '=';
             }
         }
-        $condition .= "`{$keys[$i]}` $math_symbol '$values[$i]' $and";
+        $v = urldecode($values[$i]);
+        $condition .= "`{$keys[$i]}` $math_symbol '$v' $and";
 
     }
 }
@@ -144,10 +156,8 @@ if ($ad = $_POST['selector'] != NULL) {
 $impl = implode(',',$headers_db);
 $content = $DB->getRecordsForTableInterfaceArray($get,"$condition",'',$impl);
 
-
-
-
 $content = array_values($content);
+
 
 $m_up_left = [
     "<a href='print_excel.php?$get'>Сохранить в Excel всю таблицу<img src='https://zappysys.com/images/ssis-powerpack/ssis-export-excel-file-task.png' style='width: 25px; height: 25px; margin-left: 10px;'></a>",
@@ -204,7 +214,8 @@ for ($i = 0; $i < count($filters_data); $i++) {
             $filters_data[$i]->header,
             $filters_data[$i]->get_name,
             $filters_data[$i]->width,
-            $filters_data[$i]->label
+            $filters_data[$i]->label,
+            $filters_data[$i]->gr_by
         );
     $boot[] = $bootstrap->setContainer([12],$select);
     unset($select);

@@ -256,6 +256,13 @@ class DB {
         }
         return $list;
     }
+
+    function getTableClass($table_name) {
+        $tableClass = $this->getRecordsForTableInterfaceArray('administration_table_link',"`link_get` = '$table_name'",'','table_class');
+        return $tableClass[0][0];
+    }
+
+
     //Метод выводит полное имя автора записи по имени таблицы и идентификатору записи
     function getRecordAuthorFullName($table_name,$record_id) {
 
@@ -313,7 +320,7 @@ class DB {
         return $block_name;
     }
 
-    function getSelectorForDataBase($table_name,$fields,$where,$header,$get_name,$width=100,$label) {
+    function getSelectorForDataBase($table_name,$fields,$where,$header,$get_name,$width=100,$label,$gr_by='') {
         //текущий урл
         if (!isset($_GET[$get_name])) {
             $header = $label;
@@ -338,7 +345,7 @@ class DB {
 //        $variable .= "<label class='form-label' for='sel'>$label</label>";
         $variable .=  "<option value='#'>$header</option>";
         $fields_string = implode(',',$fields);
-        $records = $this->getRecordsByConditionFetchAssoc($table_name,$where,$fields_string);
+        $records = $this->getRecordsByConditionFetchAssoc($table_name,$where,$fields_string,'',$gr_by);
 
         ($parse_url_query = explode('&',$parse_url["query"]));
         unset($parse_url_query[0]);
@@ -407,7 +414,7 @@ class DB {
     //данных из заданной таблицы.
     //Можно передать условие отбора записей и отбираемые поля в строке через запятую
     //Если отбираемые поля и условие не переданы, то выберутся все записи по всем полям
-    function getRecordsByConditionFetchAssoc($table,$where='',$fields = '*',$print='') {
+    function getRecordsByConditionFetchAssoc($table,$where='',$fields = '*',$print='',$gr_by='') {
 
         $mysqli = $this->setConnect();
 
@@ -417,10 +424,15 @@ class DB {
         else {
             $condition = '';
         }
-        if ($print!='') {
-            print_r("SELECT $fields FROM $table $condition");
+
+        if ($gr_by!='') {
+            $gr_by = "GROUP BY $gr_by";
         }
-        return $records = $mysqli->query("SELECT $fields FROM $table $condition");
+
+        if ($print!='') {
+            print_r("SELECT $distinct $fields FROM $table $condition $gr_by");
+        }
+        return $records = $mysqli->query("SELECT $fields FROM `$table` $condition $gr_by");
     }
 
     // Метод возвращает массив полей заданной таблицы
@@ -454,6 +466,7 @@ class DB {
         if ($print != '') {
             pre("SELECT $fieldss FROM $table $condition $order_method","Текст запроса к таблице $table");
         }
+
         //создаём из записей обычный массив
         foreach ($records as $array) {
 
@@ -558,13 +571,15 @@ class DB {
         $mysqli = $this->setConnect();
         $keys = get_object_vars($object_upd);
         $keys1 = array_keys($keys);
-
+        pre($keys);
+        pre($keys1);
         for ($i = 0; $i < count($keys); $i++) {
             $set =  $object_upd->{$keys1[$i]};
-            $mysqli->query("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
+            $f = $keys1[$i];
+            $mysqli->query("UPDATE $table SET $f = '$set' WHERE id = $id");
         }
         if ($print!='') {
-            print_r("UPDATE $table SET `{$keys1[$i]}` = '$set' WHERE id = $id");
+            print_r("UPDATE $table SET $f = '$set' WHERE id = $id");
         }
         return $id;
     }
@@ -861,7 +876,7 @@ class user {
             if (setcookie('user',$login,time() + 3600*24, "/")) {
 
                 $log = new log();
-                $log->fixed($_COOKIE,'Авторизация в системе');
+                $log->fixed($login,'Авторизация в системе');
                 header('Location: index.php?data=1');
             }
         }
